@@ -1,0 +1,14 @@
+Device ID	Device Name	Device Platform
+147f0c80aba9bc6f332e97d1c63a2805c885ee0d	Alexander Lohße (WWU) - iPhone X	ios
+951c1703d44c18f1fec9b3ee9daea4b19dfdee78	Jana Kupfer - iPhone 7	ios
+d40f4d6869f3759dc218e0f6c14c40d94a452c8e	Lukas Ramm (WWU) - iPhone 5s	ios
+51691745de11da713aa177464dbd6c3f11c019a9	Matthias Tempel (WWU) - iPad Air	ios
+6d37dee3d137f1c84814e4e1ccf909cba6d6dd1f	Matthias Tempel (WWU) - iPhone	ios
+6bba1ed21b31a197ebda41d3ae6332901ee304db	Matthias Tempel - iPhone X	ios
+4cdb344bef37ac869489593828d04b9a70eaef98	Nadin Heinze (WWU) - iPad Air	ios
+c335bb3f125847f25cf142d19f8b06c223a1122e	Nadin Heinze (WWU) - iPhone	ios
+baccb1c624900d12d2be98083367bec9bfcf4a14	Nadin Heinze (WWU) - iPhone 7	ios
+dc47568cef1b3e12b46e1d1c0a91d6f5c05ec431	Sascha Felgner (WWU) - iPad mini	ios
+ff1b7a137d84f48fe213f787d56f81f641d6de0e	Sascha Felgner (WWU) - iPad Pro	ios
+10752ce0ee31e1796db45a3ea00e08117dcbfb8a	Sascha Felgner (WWU) - iPhone 6s	ios
+00008030-000431693422802E	Sascha Felgner (WWU) - iPhone 11	ios

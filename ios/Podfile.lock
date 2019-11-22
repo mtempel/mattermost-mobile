@@ -1,19 +1,19 @@
 PODS:
   - XCDYouTubeKit (2.7.1)
-  - YoutubePlayer-in-WKWebView (0.3.3)
+  - YoutubePlayer-in-WKWebView (0.3.4)
 
 DEPENDENCIES:
   - XCDYouTubeKit (= 2.7.1)
   - YoutubePlayer-in-WKWebView (~> 0.3.1)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  trunk:
     - XCDYouTubeKit
     - YoutubePlayer-in-WKWebView
 
 SPEC CHECKSUMS:
   XCDYouTubeKit: c8567fd5cb388a3099fa26eee4b30df2a467847d
-  YoutubePlayer-in-WKWebView: 7694e858c5c3472ed067d6fe34eb9b944845e63c
+  YoutubePlayer-in-WKWebView: af2f5929fc78882d94bfdfeea999b661b78d9717
 
 PODFILE CHECKSUM: e565d3af8eabb0e489b73c79433e140e30f8fa9c
 

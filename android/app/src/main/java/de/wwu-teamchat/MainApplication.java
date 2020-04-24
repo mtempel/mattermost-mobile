@@ -1,4 +1,4 @@
-package com.mattermost.rnbeta;
+package de.wwu-teamchat;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -95,7 +95,7 @@ public class MainApplication extends NavigationApplication implements INotificat
 
   @Override
   public boolean isDebug() {
-    return BuildConfig.DEBUG;
+    return false;
   }
 
   @NonNull

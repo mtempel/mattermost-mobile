@@ -1,4 +1,4 @@
-package com.mattermost.rnbeta;
+package de.wwu-teamchat;
 
 import android.content.Context;
 import android.content.SharedPreferences;

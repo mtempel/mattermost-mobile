@@ -1,4 +1,4 @@
-package com.mattermost.rnbeta;
+package de.wwu-teamchat;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;

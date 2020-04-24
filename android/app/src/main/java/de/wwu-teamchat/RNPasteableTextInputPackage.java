@@ -1,4 +1,4 @@
-package com.mattermost.rnbeta;
+package de.wwu-teamchat;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;

@@ -1,4 +1,4 @@
-package com.mattermost.rnbeta;
+package de.wwu-teamchat;
 
 import android.app.Application;
 import android.app.Notification;

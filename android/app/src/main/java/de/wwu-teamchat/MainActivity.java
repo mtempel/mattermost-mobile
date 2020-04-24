@@ -1,4 +1,4 @@
-package com.mattermost.rnbeta;
+package de.wwu-teamchat;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

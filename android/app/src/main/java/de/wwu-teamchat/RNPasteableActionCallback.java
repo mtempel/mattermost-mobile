@@ -1,4 +1,4 @@
-package com.mattermost.rnbeta;
+package de.wwu-teamchat;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;

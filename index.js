@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import 'react-native/Libraries/Core/InitializeCore';
-import {AppRegistry, DeviceEventEmitter, Platform, Text, YellowBox} from 'react-native';
+import {DeviceEventEmitter, Platform, Text} from 'react-native';
 import 'react-native-gesture-handler';
 
 import LocalConfig from 'assets/config';
@@ -11,11 +11,16 @@ import telemetry from 'app/telemetry';
 
 import 'app/mattermost';
 
+if (Platform.OS === 'android') {
+    require('harmony-reflect');
+}
+
 if (__DEV__) {
+    const YellowBox = require('react-native/Libraries/YellowBox/YellowBox');
     YellowBox.ignoreWarnings([
-        'Warning: componentWillMount is deprecated',
-        'Warning: componentWillUpdate is deprecated',
-        'Warning: componentWillReceiveProps is deprecated',
+        'Warning: componentWillReceiveProps',
+        'Warning: StatusBarIOS',
+        '`-[RCTRootView cancelTouches]`',
 
         // Hide warnings caused by React Native (https://github.com/facebook/react-native/issues/20841)
         'Require cycle: node_modules/react-native/Libraries/Network/fetch.js',
@@ -48,6 +53,7 @@ const setFontFamily = () => {
 
 if (Platform.OS === 'android') {
     const ShareExtension = require('share_extension/android').default;
+    const AppRegistry = require('react-native/Libraries/ReactNative/AppRegistry');
     AppRegistry.registerComponent('MattermostShare', () => ShareExtension);
     setFontFamily();
 
@@ -69,7 +75,7 @@ if (Platform.OS === 'android') {
 // defined in packager/modulePaths.js so they are included in the main bundle.
 
 /*
-/!* eslint-disable no-console *!/
+//!* eslint-disable no-console *!/
 if (__DEV__) {
     const modules = require.getModules();
     const moduleIds = Object.keys(modules);
@@ -84,9 +90,9 @@ if (__DEV__) {
     // make sure that the modules you expect to be waiting are actually waiting
     console.log(
         'loaded:',
-        loadedModuleNames,
+        loadedModuleNames.length,
         'waiting:',
-        waitingModuleNames
+        waitingModuleNames.length,
     );
 
     // grab this text blob, and put it in a file named packager/moduleNames.js

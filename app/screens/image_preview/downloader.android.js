@@ -77,10 +77,6 @@ export default class Downloader extends PureComponent {
                 id: 'mobile.downloader.android_started',
                 defaultMessage: 'Download started',
             });
-            const title = intl.formatMessage({
-                id: 'mobile.downloader.android_success',
-                defaultMessage: 'download successful',
-            });
             const complete = intl.formatMessage({
                 id: 'mobile.downloader.android_complete',
                 defaultMessage: 'Download complete',
@@ -89,7 +85,7 @@ export default class Downloader extends PureComponent {
             ToastAndroid.show(started, ToastAndroid.SHORT);
             onDownloadStart();
 
-            let dest = `${RNFetchBlob.fs.dirs.DownloadDir}/${data.id}-${file.caption}`;
+            let dest = `${RNFetchBlob.fs.dirs.DownloadDir}/${data.id}-${data.name}`;
             let downloadFile = true;
 
             if (data.localPath) {
@@ -127,7 +123,7 @@ export default class Downloader extends PureComponent {
                         useDownloadManager: true,
                         notification: true,
                         path: dest,
-                        title: `${file.caption} ${title}`,
+                        title: `${file.caption}`,
                         mime: data.mime_type,
                         description: data.name,
                         mediaScannable: true,

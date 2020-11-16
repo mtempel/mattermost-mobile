@@ -1,16 +1,20 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {Sentry} from 'react-native-sentry';
 import {BATCH} from 'redux-batched-actions';
 
 export const BREADCRUMB_REDUX_ACTION = 'redux-action';
 
+let Sentry;
 export function createSentryMiddleware() {
+    if (!Sentry) {
+        Sentry = require('@sentry/react-native');
+    }
+
     return (store) => { // eslint-disable-line no-unused-vars
         return (next) => {
             return (action) => {
-                Sentry.captureBreadcrumb(makeBreadcrumbFromAction(action));
+                Sentry.addBreadcrumb(makeBreadcrumbFromAction(action));
 
                 return next(action);
             };

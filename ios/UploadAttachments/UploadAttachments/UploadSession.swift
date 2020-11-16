@@ -82,11 +82,13 @@ import os.log
         guard let identifier = session.configuration.identifier else {return}
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: []) as! NSDictionary
-            let fileInfos = jsonObject.object(forKey: "file_infos") as! NSArray
-            if fileInfos.count > 0 {
-                let fileInfoData = fileInfos[0] as! NSDictionary
-                let fileId = fileInfoData.object(forKey: "id") as! String
-                UploadSessionManager.shared.appendCompletedUploadToSession(identifier: identifier, fileId: fileId)
+            if jsonObject.object(forKey: "file_infos") != nil {
+                let fileInfos = jsonObject.object(forKey: "file_infos") as! NSArray
+                if fileInfos.count > 0 {
+                    let fileInfoData = fileInfos[0] as! NSDictionary
+                    let fileId = fileInfoData.object(forKey: "id") as! String
+                    UploadSessionManager.shared.appendCompletedUploadToSession(identifier: identifier, fileId: fileId)
+                }
             }
         } catch {
             if #available(iOS 12.0, *) {
@@ -126,8 +128,12 @@ import os.log
             }
         })
     }
-    
+
     public func notificationReceipt(notificationId: Any?, receivedAt: Int, type: Any?) {
+        notificationReceipt(notificationId:notificationId, receivedAt:receivedAt, type:type, postId:nil, idLoaded: false, completion:{_, _ in})
+    }
+
+    public func notificationReceipt(notificationId: Any?, receivedAt: Int, type: Any?, postId: Any? = nil, idLoaded: Bool, completion: @escaping (Data?, Error?) -> Void) {
         if (notificationId != nil) {
             let store = StoreManager.shared() as StoreManager
             let entities = store.getEntities(true)
@@ -142,18 +148,24 @@ import os.log
                         "id": notificationId as Any,
                         "received_at": receivedAt,
                         "platform": "ios",
-                        "type": type as Any
+                        "type": type as Any,
+                        "post_id": postId as Any,
+                        "is_id_loaded": idLoaded as Bool
                     ]
                     
                     if !JSONSerialization.isValidJSONObject(jsonObject) {return}
-                    
+
                     guard let url = URL(string: urlString) else {return}
                     var request = URLRequest(url: url)
                     request.httpMethod = "POST"
                     request.setValue("Bearer \(sessionToken!)", forHTTPHeaderField: "Authorization")
                     request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
                     request.httpBody = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted)
-                    URLSession(configuration: .ephemeral).dataTask(with: request).resume()
+
+                    let task = URLSession(configuration: .ephemeral).dataTask(with: request) { data, _, error in
+                        completion(data, error)
+                    }
+                    task.resume()
                 }
             }
         }

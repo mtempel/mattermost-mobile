@@ -47,6 +47,7 @@ NotificationSettingsMentionsKeywords {
       "dndIndicator": "#f74343",
       "errorTextColor": "#fd5960",
       "linkColor": "#2389d7",
+      "mentionBg": "#ffffff",
       "mentionBj": "#ffffff",
       "mentionColor": "#145dbf",
       "mentionHighlightBg": "#ffe577",
@@ -79,13 +80,16 @@ NotificationSettingsMentionsKeywords {
         "useCallback": [Function],
         "useContext": [Function],
         "useDebugValue": [Function],
+        "useDeferredValue": [Function],
         "useEffect": [Function],
         "useImperativeHandle": [Function],
         "useLayoutEffect": [Function],
         "useMemo": [Function],
         "useReducer": [Function],
         "useRef": [Function],
+        "useResponder": [Function],
         "useState": [Function],
+        "useTransition": [Function],
       },
       "_element": <NotificationSettingsMentionsKeywords
         componentId="component-id"
@@ -130,6 +134,7 @@ NotificationSettingsMentionsKeywords {
             "dndIndicator": "#f74343",
             "errorTextColor": "#fd5960",
             "linkColor": "#2389d7",
+            "mentionBg": "#ffffff",
             "mentionBj": "#ffffff",
             "mentionColor": "#145dbf",
             "mentionHighlightBg": "#ffe577",
@@ -164,7 +169,7 @@ NotificationSettingsMentionsKeywords {
         }
       >
         <Connect(StatusBar) />
-        <ScrollViewMock
+        <ScrollView
           alwaysBounceVertical={false}
           contentContainerStyle={
             Object {
@@ -240,7 +245,7 @@ NotificationSettingsMentionsKeywords {
               }
             />
           </View>
-        </ScrollViewMock>
+        </ScrollView>
       </View>,
       "_rendering": false,
       "_updater": [Circular],

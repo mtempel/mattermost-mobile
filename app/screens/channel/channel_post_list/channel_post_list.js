@@ -15,7 +15,6 @@ import EventEmitter from 'mattermost-redux/utils/event_emitter';
 import AnnouncementBanner from 'app/components/announcement_banner';
 import PostList from 'app/components/post_list';
 import RetryBarIndicator from 'app/components/retry_bar_indicator';
-import {ViewTypes} from 'app/constants';
 import tracker from 'app/utils/time_tracker';
 import {changeOpacity, makeStyleSheetFromTheme} from 'app/utils/theme';
 import telemetry from 'app/telemetry';
@@ -33,6 +32,7 @@ export default class ChannelPostList extends PureComponent {
             selectPost: PropTypes.func.isRequired,
             recordLoadTime: PropTypes.func.isRequired,
             refreshChannelWithRetry: PropTypes.func.isRequired,
+            setChannelRefreshing: PropTypes.func,
         }).isRequired,
         channelId: PropTypes.string.isRequired,
         channelRefreshingFailed: PropTypes.bool,
@@ -40,7 +40,6 @@ export default class ChannelPostList extends PureComponent {
         lastViewedAt: PropTypes.number,
         loadMorePostsVisible: PropTypes.bool.isRequired,
         postIds: PropTypes.array,
-        postVisibility: PropTypes.number,
         refreshing: PropTypes.bool.isRequired,
         theme: PropTypes.object.isRequired,
         updateNativeScrollView: PropTypes.func,
@@ -48,15 +47,10 @@ export default class ChannelPostList extends PureComponent {
 
     static defaultProps = {
         postIds: [],
-        postVisibility: ViewTypes.POST_VISIBILITY_CHUNK_SIZE,
     };
 
     constructor(props) {
         super(props);
-
-        this.state = {
-            visiblePostIds: this.getVisiblePostIds(props),
-        };
 
         this.contentHeight = 0;
 
@@ -68,24 +62,12 @@ export default class ChannelPostList extends PureComponent {
         EventEmitter.on('goToThread', this.goToThread);
     }
 
-    componentWillReceiveProps(nextProps) {
-        const {postIds: nextPostIds} = nextProps;
-
-        let visiblePostIds = this.state.visiblePostIds;
-        if (nextPostIds !== this.props.postIds || nextProps.postVisibility !== this.props.postVisibility) {
-            visiblePostIds = this.getVisiblePostIds(nextProps);
-        }
-
-        if (this.props.channelId !== nextProps.channelId) {
-            this.isLoadingMoreTop = false;
-        }
-
-        this.setState({visiblePostIds});
-    }
-
     componentDidUpdate(prevProps) {
-        if (prevProps.channelId !== this.props.channelId && tracker.channelSwitch) {
-            this.props.actions.recordLoadTime('Switch Channel', 'channelSwitch');
+        if (this.props.channelId !== prevProps.channelId) {
+            this.isLoadingMoreTop = false;
+            if (tracker.channelSwitch) {
+                this.props.actions.recordLoadTime('Switch Channel', 'channelSwitch');
+            }
         }
 
         if (!prevProps.postIds?.length && this.props.postIds?.length > 0 && this.props.updateNativeScrollView) {
@@ -97,10 +79,6 @@ export default class ChannelPostList extends PureComponent {
     componentWillUnmount() {
         EventEmitter.off('goToThread', this.goToThread);
     }
-
-    getVisiblePostIds = (props) => {
-        return props.postIds ? props.postIds.slice(0, props.postVisibility) : [];
-    };
 
     goToThread = (post) => {
         telemetry.start(['post_list:thread']);
@@ -124,12 +102,12 @@ export default class ChannelPostList extends PureComponent {
     };
 
     loadMorePostsTop = () => {
-        const {actions, channelId} = this.props;
+        const {actions, channelId, postIds} = this.props;
         if (!this.isLoadingMoreTop) {
             this.isLoadingMoreTop = true;
             actions.increasePostVisibility(
                 channelId,
-                this.state.visiblePostIds[this.state.visiblePostIds.length - 1]
+                postIds[postIds.length - 1],
             ).then((hasMore) => {
                 this.isLoadingMoreTop = !hasMore;
             });
@@ -178,15 +156,14 @@ export default class ChannelPostList extends PureComponent {
             channelRefreshingFailed,
             currentUserId,
             lastViewedAt,
-            loadMorePostsVisible,
+            postIds,
             refreshing,
             theme,
         } = this.props;
 
-        const {visiblePostIds} = this.state;
         let component;
 
-        if (visiblePostIds.length === 0 && channelRefreshingFailed) {
+        if (postIds.length === 0 && channelRefreshingFailed) {
             const FailedNetworkAction = require('app/components/failed_network_action').default;
 
             component = (
@@ -198,9 +175,9 @@ export default class ChannelPostList extends PureComponent {
         } else {
             component = (
                 <PostList
-                    postIds={visiblePostIds}
-                    lastPostIndex={Platform.OS === 'android' ? getLastPostIndex(visiblePostIds) : -1}
-                    extraData={loadMorePostsVisible}
+                    postIds={postIds}
+                    lastPostIndex={Platform.OS === 'android' ? getLastPostIndex(postIds) : -1}
+                    extraData={postIds.length !== 0}
                     onLoadMoreUp={this.loadMorePostsTop}
                     onPostPress={this.goToThread}
                     onRefresh={actions.setChannelRefreshing}
@@ -212,6 +189,7 @@ export default class ChannelPostList extends PureComponent {
                     renderFooter={this.renderFooter}
                     refreshing={refreshing}
                     scrollViewNativeID={channelId}
+                    loadMorePostsVisible={this.props.loadMorePostsVisible}
                 />
             );
         }

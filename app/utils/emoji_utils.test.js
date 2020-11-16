@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {doesMatchNamedEmoji, hasEmojisOnly} from './emoji_utils';
+import {doesMatchNamedEmoji, hasEmojisOnly, compareEmojis} from './emoji_utils';
 
 describe('hasEmojisOnly with named emojis', () => {
     const testCases = [{
@@ -282,4 +282,147 @@ describe('doesMatchNamedEmoji', () => {
             expect(doesMatchNamedEmoji(testCase.input)).toEqual(testCase.output);
         });
     }
+});
+
+describe('compareEmojis', () => {
+    test('should sort an array of emojis alphabetically', () => {
+        const goatEmoji = {
+            name: 'goat',
+        };
+
+        const dashEmoji = {
+            name: 'dash',
+        };
+
+        const smileEmoji = {
+            name: 'smile',
+        };
+
+        const emojiArray = [goatEmoji, dashEmoji, smileEmoji];
+        emojiArray.sort((a, b) => compareEmojis(a, b));
+
+        expect(emojiArray).toEqual([dashEmoji, goatEmoji, smileEmoji]);
+    });
+
+    test('should have partial matched emoji first', () => {
+        const goatEmoji = {
+            name: 'goat',
+        };
+
+        const dashEmoji = {
+            name: 'dash',
+        };
+
+        const smileEmoji = {
+            name: 'smile',
+        };
+
+        const emojiArray = [goatEmoji, dashEmoji, smileEmoji];
+        emojiArray.sort((a, b) => compareEmojis(a, b, 'smi'));
+
+        expect(emojiArray).toEqual([smileEmoji, dashEmoji, goatEmoji]);
+    });
+
+    test('should be able to sort on aliases', () => {
+        const goatEmoji = {
+            aliases: [':goat:'],
+        };
+
+        const dashEmoji = {
+            aliases: [':dash:'],
+        };
+
+        const smileEmoji = {
+            aliases: [':smile:'],
+        };
+
+        const emojiArray = [goatEmoji, dashEmoji, smileEmoji];
+        emojiArray.sort((a, b) => compareEmojis(a, b));
+
+        expect(emojiArray).toEqual([dashEmoji, goatEmoji, smileEmoji]);
+    });
+
+    test('special case for thumbsup emoji should sort it before thumbsdown by aliases', () => {
+        const thumbsUpEmoji = {
+            aliases: ['+1'],
+        };
+
+        const thumbsDownEmoji = {
+            aliases: ['-1'],
+        };
+
+        const smileEmoji = {
+            aliases: ['smile'],
+        };
+
+        const emojiArray = [thumbsDownEmoji, thumbsUpEmoji, smileEmoji];
+        emojiArray.sort((a, b) => compareEmojis(a, b));
+
+        expect(emojiArray).toEqual([thumbsUpEmoji, thumbsDownEmoji, smileEmoji]);
+    });
+
+    test('special case for thumbsup emoji should sort it before thumbsdown by names', () => {
+        const thumbsUpEmoji = {
+            name: 'thumbsup',
+        };
+
+        const thumbsDownEmoji = {
+            name: 'thumbsdown',
+        };
+
+        const smileEmoji = {
+            name: 'smile',
+        };
+
+        const emojiArray = [thumbsDownEmoji, thumbsUpEmoji, smileEmoji];
+        emojiArray.sort((a, b) => compareEmojis(a, b));
+
+        expect(emojiArray).toEqual([smileEmoji, thumbsUpEmoji, thumbsDownEmoji]);
+    });
+
+    test('special case for thumbsup emoji should sort it when emoji is matched', () => {
+        const thumbsUpEmoji = {
+            name: 'thumbsup',
+        };
+
+        const thumbsDownEmoji = {
+            name: 'thumbsdown',
+        };
+
+        const smileEmoji = {
+            name: 'smile',
+        };
+
+        const emojiArray = [thumbsDownEmoji, thumbsUpEmoji, smileEmoji];
+        emojiArray.sort((a, b) => compareEmojis(a, b, 'thumb'));
+
+        expect(emojiArray).toEqual([thumbsUpEmoji, thumbsDownEmoji, smileEmoji]);
+    });
+
+    test('it compares emojis when emojis are strings', () => {
+        const thumbsUpEmoji = 'thumbsup';
+        const thumbsDownEmoji = 'thumbsdown';
+        const smileEmoji = {
+            name: 'smile',
+        };
+
+        const emojiArray = [thumbsDownEmoji, thumbsUpEmoji, smileEmoji];
+        emojiArray.sort((a, b) => compareEmojis(a, b, 'thumb'));
+
+        expect(emojiArray).toEqual([thumbsUpEmoji, thumbsDownEmoji, smileEmoji]);
+    });
+
+    test('it sorts emojis that start with search term first, then includes search term, then alphabetically', () => {
+        const printerEmoji = 'printer';
+        const pointDownEmoji = 'point_down';
+        const paintBrushEmoji = 'paintbrush';
+        const footPrintsEmoji = 'footprints';
+        const disappointedEmoji = 'disappointed';
+        const sixPointedStarEmoji = 'six_pointed_star';
+
+        const emojiArray = [printerEmoji, pointDownEmoji, paintBrushEmoji, footPrintsEmoji, disappointedEmoji, sixPointedStarEmoji];
+        emojiArray.sort((a, b) => compareEmojis(a, b, 'point'));
+
+        expect(emojiArray).toEqual([pointDownEmoji, disappointedEmoji, sixPointedStarEmoji, footPrintsEmoji, paintBrushEmoji, printerEmoji]);
+    });
 });

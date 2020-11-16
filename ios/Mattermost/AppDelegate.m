@@ -12,17 +12,13 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
-#if __has_include(<React/RNSentry.h>)
-#import <React/RNSentry.h> // This is used for versions of react >= 0.40
-#else
-#import "RNSentry.h" // This is used for versions of react < 0.40
-#endif
 #import <ReactNativeNavigation/ReactNativeNavigation.h>
 #import "RNNotifications.h"
 #import <UploadAttachments/UploadAttachments-Swift.h>
 #import <UserNotifications/UserNotifications.h>
 #import "Mattermost-Swift.h"
 #import <os/log.h>
+#import <RNHWKeyboardEvent.h>
 
 @implementation AppDelegate
 
@@ -144,4 +140,30 @@ NSString* const NOTIFICATION_UPDATE_BADGE_ACTION = @"update_badge";
                      restorationHandler:restorationHandler];
 }
 
+/*
+  https://mattermost.atlassian.net/browse/MM-10601
+  Required by react-native-hw-keyboard-event
+  (https://github.com/emilioicai/react-native-hw-keyboard-event)
+*/
+RNHWKeyboardEvent *hwKeyEvent = nil;
+- (NSMutableArray<UIKeyCommand *> *)keyCommands {
+  NSMutableArray *keys = [NSMutableArray new];
+  if (hwKeyEvent == nil) {
+    hwKeyEvent = [[RNHWKeyboardEvent alloc] init];
+  }
+  if ([hwKeyEvent isListening]) {
+    [keys addObject: [UIKeyCommand keyCommandWithInput:@"\r" modifierFlags:0 action:@selector(sendEnter:)]];
+    [keys addObject: [UIKeyCommand keyCommandWithInput:@"\r" modifierFlags:UIKeyModifierShift action:@selector(sendShiftEnter:)]];
+  }
+  return keys;
+}
+
+- (void)sendEnter:(UIKeyCommand *)sender {
+  NSString *selected = sender.input;
+  [hwKeyEvent sendHWKeyEvent:@"enter"];
+}
+- (void)sendShiftEnter:(UIKeyCommand *)sender {
+  NSString *selected = sender.input;
+  [hwKeyEvent sendHWKeyEvent:@"shift-enter"];
+}
 @end

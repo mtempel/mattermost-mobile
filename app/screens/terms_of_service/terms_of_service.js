@@ -17,9 +17,9 @@ import Markdown from 'app/components/markdown';
 import StatusBar from 'app/components/status_bar';
 
 import {getMarkdownTextStyles, getMarkdownBlockStyles} from 'app/utils/markdown';
-import {makeStyleSheetFromTheme, setNavigatorStyles} from 'app/utils/theme';
+import {makeStyleSheetFromTheme} from 'app/utils/theme';
 
-import {dismissModal, dismissAllModals, setButtons} from 'app/actions/navigation';
+import {dismissModal, setButtons} from 'app/actions/navigation';
 
 export default class TermsOfService extends PureComponent {
     static propTypes = {
@@ -74,12 +74,6 @@ export default class TermsOfService extends PureComponent {
         this.getTerms();
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.props.theme !== prevProps.theme) {
-            setNavigatorStyles(this.props.componentId, this.props.theme);
-        }
-    }
-
     navigationButtonPressed({buttonId}) {
         switch (buttonId) {
         case 'close-terms-of-service':
@@ -118,7 +112,6 @@ export default class TermsOfService extends PureComponent {
     closeTermsAndLogout = async () => {
         const {actions} = this.props;
 
-        await dismissAllModals();
         actions.logout();
     };
 
@@ -157,7 +150,7 @@ export default class TermsOfService extends PureComponent {
             () => {
                 dismissModal();
             },
-            this.handleAcceptTerms
+            this.handleAcceptTerms,
         );
     };
 
@@ -182,7 +175,7 @@ export default class TermsOfService extends PureComponent {
                     }],
                 );
             },
-            this.handleRejectTerms
+            this.handleRejectTerms,
         );
     };
 
@@ -231,7 +224,7 @@ export default class TermsOfService extends PureComponent {
         const textStyles = getMarkdownTextStyles(theme);
 
         if (this.state.loading) {
-            return <Loading/>;
+            return <Loading color={theme.centerChannelColor}/>;
         }
 
         if (this.state.getTermsError) {
@@ -276,7 +269,6 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
             lineHeight: 20,
         },
         container: {
-            backgroundColor: theme.centerChannelBg,
             flex: 1,
         },
         scrollView: {

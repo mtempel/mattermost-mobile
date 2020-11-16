@@ -2,8 +2,6 @@
 // See LICENSE.txt for license information.
 
 import {NativeModules, DeviceEventEmitter} from 'react-native';
-import LocalAuth from 'react-native-local-auth';
-import JailMonkey from 'jail-monkey';
 
 import {emptyFunction} from 'app/utils/general';
 
@@ -11,6 +9,8 @@ const {MattermostManaged} = NativeModules;
 
 const listeners = [];
 let cachedConfig = {};
+let LocalAuth;
+let JailMonkey;
 
 export default {
     addEventListener: (name, callback) => {
@@ -36,7 +36,13 @@ export default {
             listeners.splice(index, 1);
         }
     },
-    authenticate: LocalAuth.auth,
+    authenticate: (opts) => {
+        if (!LocalAuth) {
+            LocalAuth = require('react-native-local-auth');
+        }
+
+        return LocalAuth.auth(opts);
+    },
     blurAppScreen: emptyFunction,
     appGroupIdentifier: null,
     hasSafeAreaInsets: null,
@@ -56,6 +62,10 @@ export default {
     goToSecuritySettings: MattermostManaged.goToSecuritySettings,
     isDeviceSecure: async () => {
         try {
+            if (!LocalAuth) {
+                LocalAuth = require('react-native-local-auth');
+            }
+
             return await LocalAuth.isDeviceSecure();
         } catch (err) {
             return false;
@@ -64,6 +74,10 @@ export default {
     isTrustedDevice: () => {
         if (__DEV__) {
             return true;
+        }
+
+        if (!JailMonkey) {
+            JailMonkey = require('jail-monkey');
         }
 
         return JailMonkey.trustFall();

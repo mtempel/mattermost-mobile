@@ -27,7 +27,6 @@ import {createProfilesSections, loadingText} from 'app/utils/member_list';
 import {
     changeOpacity,
     makeStyleSheetFromTheme,
-    setNavigatorStyles,
     getKeyboardAppearanceFromTheme,
 } from 'app/utils/theme';
 import {t} from 'app/utils/i18n';
@@ -43,7 +42,6 @@ export default class SelectorScreen extends PureComponent {
             searchProfiles: PropTypes.func.isRequired,
             searchChannels: PropTypes.func.isRequired,
         }),
-        componentId: PropTypes.string,
         currentTeamId: PropTypes.string.isRequired,
         data: PropTypes.arrayOf(PropTypes.object),
         dataSource: PropTypes.string,
@@ -90,10 +88,8 @@ export default class SelectorScreen extends PureComponent {
         this.mounted = false;
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.props.theme !== prevProps.theme) {
-            setNavigatorStyles(this.props.componentId, this.props.theme);
-        }
+    setSearchBarRef = (ref) => {
+        this.searchBarRef = ref;
     }
 
     clearSearch = () => {
@@ -117,7 +113,7 @@ export default class SelectorScreen extends PureComponent {
                 actions.getChannels(
                     currentTeamId,
                     this.page += 1,
-                    General.CHANNELS_CHUNK_SIZE
+                    General.CHANNELS_CHUNK_SIZE,
                 ).then(this.loadedChannels);
             });
         }
@@ -148,7 +144,7 @@ export default class SelectorScreen extends PureComponent {
 
                 actions.getProfiles(
                     this.page + 1,
-                    General.PROFILE_CHUNK_SIZE
+                    General.PROFILE_CHUNK_SIZE,
                 ).then(this.loadedProfiles);
             });
         }
@@ -327,7 +323,7 @@ export default class SelectorScreen extends PureComponent {
                 <StatusBar/>
                 <View style={[style.searchBar, padding(isLandscape)]}>
                     <SearchBar
-                        ref='search_bar'
+                        ref={this.setSearchBarRef}
                         placeholder={formatMessage({id: 'search_bar.search', defaultMessage: 'Search'})}
                         cancelTitle={formatMessage({id: 'mobile.post.cancel', defaultMessage: 'Cancel'})}
                         backgroundColor='transparent'
@@ -367,7 +363,6 @@ const getStyleFromTheme = makeStyleSheetFromTheme((theme) => {
     return {
         container: {
             flex: 1,
-            backgroundColor: theme.centerChannelBg,
         },
         searchBar: {
             marginVertical: 5,

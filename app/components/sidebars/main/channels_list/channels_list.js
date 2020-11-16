@@ -33,8 +33,6 @@ export default class ChannelsList extends PureComponent {
         onSelectChannel: PropTypes.func.isRequired,
         onShowTeams: PropTypes.func.isRequired,
         theme: PropTypes.object.isRequired,
-        drawerOpened: PropTypes.bool,
-        previewChannel: PropTypes.func,
         isLandscape: PropTypes.bool.isRequired,
     };
 
@@ -55,9 +53,13 @@ export default class ChannelsList extends PureComponent {
         });
     }
 
+    setSearchBarRef = (ref) => {
+        this.searchBarRef = ref;
+    }
+
     cancelSearch = () => {
-        if (this.refs.search_bar) {
-            this.refs.search_bar.cancel();
+        if (this.searchBarRef) {
+            this.searchBarRef.cancel();
         }
     };
 
@@ -94,7 +96,6 @@ export default class ChannelsList extends PureComponent {
         const {
             onShowTeams,
             theme,
-            previewChannel,
             isLandscape,
         } = this.props;
 
@@ -108,7 +109,6 @@ export default class ChannelsList extends PureComponent {
                     onSelectChannel={this.onSelectChannel}
                     styles={styles}
                     term={term}
-                    previewChannel={previewChannel}
                 />
             );
         } else {
@@ -116,7 +116,6 @@ export default class ChannelsList extends PureComponent {
                 <List
                     onSelectChannel={this.onSelectChannel}
                     styles={styles}
-                    previewChannel={previewChannel}
                 />
             );
         }
@@ -135,7 +134,7 @@ export default class ChannelsList extends PureComponent {
         const title = (
             <View style={[styles.searchContainer, padding(isLandscape)]}>
                 <SearchBar
-                    ref='search_bar'
+                    ref={this.setSearchBarRef}
                     placeholder={intl.formatMessage({id: 'mobile.channel_drawer.search', defaultMessage: 'Jump to...'})}
                     cancelTitle={intl.formatMessage({id: 'mobile.post.cancel', defaultMessage: 'Cancel'})}
                     inputCollapsedMargin={0}

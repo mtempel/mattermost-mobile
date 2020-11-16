@@ -8,7 +8,7 @@ exports[`ReactionList should match snapshot 1`] = `
     }
   }
 >
-  <ForwardRef(forwardConnectRef)
+  <Connect(SlideUpPanel)
     header={[Function]}
     headerHeight={37.5}
     initialPosition={0.55}
@@ -24,6 +24,7 @@ exports[`ReactionList should match snapshot 1`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",
@@ -64,6 +65,7 @@ exports[`ReactionList should match snapshot 1`] = `
             "dndIndicator": "#f74343",
             "errorTextColor": "#fd5960",
             "linkColor": "#2389d7",
+            "mentionBg": "#ffffff",
             "mentionBj": "#ffffff",
             "mentionColor": "#145dbf",
             "mentionHighlightBg": "#ffe577",
@@ -119,6 +121,7 @@ exports[`ReactionList should match snapshot 1`] = `
             "dndIndicator": "#f74343",
             "errorTextColor": "#fd5960",
             "linkColor": "#2389d7",
+            "mentionBg": "#ffffff",
             "mentionBj": "#ffffff",
             "mentionColor": "#145dbf",
             "mentionHighlightBg": "#ffe577",
@@ -152,7 +155,7 @@ exports[`ReactionList should match snapshot 1`] = `
         }
       />
     </View>
-  </ForwardRef(forwardConnectRef)>
+  </Connect(SlideUpPanel)>
 </View>
 `;
 
@@ -180,6 +183,7 @@ Array [
           "dndIndicator": "#f74343",
           "errorTextColor": "#fd5960",
           "linkColor": "#2389d7",
+          "mentionBg": "#ffffff",
           "mentionBj": "#ffffff",
           "mentionColor": "#145dbf",
           "mentionHighlightBg": "#ffe577",
@@ -235,6 +239,7 @@ Array [
           "dndIndicator": "#f74343",
           "errorTextColor": "#fd5960",
           "linkColor": "#2389d7",
+          "mentionBg": "#ffffff",
           "mentionBj": "#ffffff",
           "mentionColor": "#145dbf",
           "mentionHighlightBg": "#ffe577",

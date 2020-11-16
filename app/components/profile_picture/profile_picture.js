@@ -9,8 +9,6 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {Client4} from 'mattermost-redux/client';
 
 import UserStatus from 'app/components/user_status';
-import ImageCacheManager from 'app/utils/image_cache_manager';
-import {emptyFunction} from 'app/utils/general';
 import {changeOpacity, makeStyleSheetFromTheme} from 'app/utils/theme';
 
 import placeholder from 'assets/images/profile.jpg';
@@ -63,28 +61,8 @@ export default class ProfilePicture extends PureComponent {
         } else if (edit && imageUri) {
             this.setImageURL(imageUri);
         } else if (user) {
-            ImageCacheManager.cache('', Client4.getProfilePictureUrl(user.id, user.last_picture_update), this.setImageURL).then(this.clearProfileImageUri).catch(emptyFunction);
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (this.mounted) {
-            if (nextProps.edit && nextProps.imageUri && nextProps.imageUri !== this.props.imageUri) {
-                this.setImageURL(nextProps.imageUri);
-                return;
-            }
-
-            if (nextProps.profileImageUri !== '' && nextProps.profileImageUri !== this.props.profileImageUri) {
-                this.setImageURL(nextProps.profileImageUri);
-            }
-
-            const url = this.props.user ? Client4.getProfilePictureUrl(this.props.user.id, this.props.user.last_picture_update) : null;
-            const nextUrl = nextProps.user ? Client4.getProfilePictureUrl(nextProps.user.id, nextProps.user.last_picture_update) : null;
-
-            if (nextUrl && url !== nextUrl) {
-                // empty function is so that promise unhandled is not triggered in dev mode
-                ImageCacheManager.cache('', nextUrl, this.setImageURL).then(this.clearProfileImageUri).catch(emptyFunction);
-            }
+            this.setImageURL(Client4.getProfilePictureUrl(user.id, user.last_picture_update));
+            this.clearProfileImageUri();
         }
     }
 
@@ -107,6 +85,24 @@ export default class ProfilePicture extends PureComponent {
     componentDidUpdate(prevProps) {
         if (this.props.profileImageRemove !== prevProps.profileImageRemove) {
             this.setImageURL(null);
+        } else if (this.mounted) {
+            if (this.props.edit && this.props.imageUri && this.props.imageUri !== prevProps.imageUri) {
+                this.setImageURL(this.props.imageUri);
+                return;
+            }
+
+            if (this.props.profileImageUri !== '' && this.props.profileImageUri !== prevProps.profileImageUri) {
+                this.setImageURL(this.props.profileImageUri);
+            }
+
+            const url = prevProps.user ? Client4.getProfilePictureUrl(prevProps.user.id, prevProps.user.last_picture_update) : null;
+            const nextUrl = this.props.user ? Client4.getProfilePictureUrl(this.props.user.id, this.props.user.last_picture_update) : null;
+
+            if (nextUrl && url !== nextUrl) {
+                // empty function is so that promise unhandled is not triggered in dev mode
+                this.setImageURL(nextUrl);
+                this.clearProfileImageUri();
+            }
         }
     }
 

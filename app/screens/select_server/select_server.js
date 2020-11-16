@@ -67,6 +67,10 @@ export default class SelectServer extends PureComponent {
         serverUrl: PropTypes.string.isRequired,
     };
 
+    static defaultProps = {
+        allowOtherServers: true,
+    };
+
     static contextTypes = {
         intl: intlShape.isRequired,
     };
@@ -159,11 +163,18 @@ export default class SelectServer extends PureComponent {
     };
 
     goToNextScreen = (screen, title, passProps = {}, navOptions = {}) => {
+        const {allowOtherServers} = this.props;
+        let visible = !LocalConfig.AutoSelectServerUrl;
+
+        if (!allowOtherServers) {
+            visible = false;
+        }
+
         const defaultOptions = {
-            popGesture: !LocalConfig.AutoSelectServerUrl,
+            popGesture: visible,
             topBar: {
-                visible: !LocalConfig.AutoSelectServerUrl,
-                height: LocalConfig.AutoSelectServerUrl ? 0 : null,
+                visible,
+                height: visible ? null : 0,
             },
         };
         const options = merge(defaultOptions, navOptions);
@@ -425,7 +436,10 @@ export default class SelectServer extends PureComponent {
                     enabled={Platform.OS === 'ios'}
                 >
                     <StatusBar barStyle={statusStyle}/>
-                    <TouchableWithoutFeedback onPress={this.blur}>
+                    <TouchableWithoutFeedback
+                        onPress={this.blur}
+                        accessible={false}
+                    >
                         <View style={[GlobalStyles.container, GlobalStyles.signupContainer]}>
                             <Image
                                 source={require('assets/images/logo.png')}

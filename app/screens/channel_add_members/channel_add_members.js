@@ -28,7 +28,6 @@ import {createProfilesSections, loadingText} from 'app/utils/member_list';
 import {
     changeOpacity,
     makeStyleSheetFromTheme,
-    setNavigatorStyles,
     getKeyboardAppearanceFromTheme,
 } from 'app/utils/theme';
 import {popTopScreen, setButtons} from 'app/actions/navigation';
@@ -98,22 +97,21 @@ export default class ChannelAddMembers extends PureComponent {
         this.enableAddOption(false);
     }
 
-    componentDidUpdate(prevProps) {
-        const {componentId, theme} = this.props;
+    componentDidUpdate() {
         const {adding, selectedIds} = this.state;
         const enabled = Object.keys(selectedIds).length > 0 && !adding;
 
         this.enableAddOption(enabled);
-
-        if (theme !== prevProps.theme) {
-            setNavigatorStyles(componentId, theme);
-        }
     }
 
     navigationButtonPressed({buttonId}) {
         if (buttonId === this.addButton.id) {
             this.handleAddMembersPress();
         }
+    }
+
+    setSearchBarRef = (ref) => {
+        this.searchBarRef = ref;
     }
 
     clearSearch = () => {
@@ -142,7 +140,7 @@ export default class ChannelAddMembers extends PureComponent {
                     currentChannelId,
                     currentChannelGroupConstrained,
                     this.page + 1,
-                    General.PROFILE_CHUNK_SIZE
+                    General.PROFILE_CHUNK_SIZE,
                 ).then(this.onProfilesLoaded);
             });
         }
@@ -160,7 +158,7 @@ export default class ChannelAddMembers extends PureComponent {
                 formatMessage({
                     id: 'mobile.channel_members.add_members_alert',
                     defaultMessage: 'You must select at least one member to add to the channel.',
-                })
+                }),
             );
 
             return;
@@ -299,7 +297,7 @@ export default class ChannelAddMembers extends PureComponent {
             return (
                 <View style={style.container}>
                     <StatusBar/>
-                    <Loading/>
+                    <Loading color={theme.centerChannelColor}/>
                 </View>
             );
         }
@@ -343,7 +341,7 @@ export default class ChannelAddMembers extends PureComponent {
                 <StatusBar/>
                 <View style={[style.searchBar, padding(isLandscape)]}>
                     <SearchBar
-                        ref='search_bar'
+                        ref={this.setSearchBarRef}
                         placeholder={formatMessage({id: 'search_bar.search', defaultMessage: 'Search'})}
                         cancelTitle={formatMessage({id: 'mobile.post.cancel', defaultMessage: 'Cancel'})}
                         backgroundColor='transparent'

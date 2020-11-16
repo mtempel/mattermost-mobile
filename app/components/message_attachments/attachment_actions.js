@@ -41,7 +41,8 @@ export default class AttachmentActions extends PureComponent {
                         defaultOption={action.default_option}
                         options={action.options}
                         postId={postId}
-                    />
+                        disabled={action.disabled}
+                    />,
                 );
                 break;
             case 'button':
@@ -53,12 +54,14 @@ export default class AttachmentActions extends PureComponent {
                         cookie={action.cookie}
                         name={action.name}
                         postId={postId}
-                    />
+                        disabled={action.disabled}
+                        buttonColor={action.style}
+                    />,
                 );
                 break;
             }
         });
 
-        return content;
+        return content.length ? content : null;
     }
 }

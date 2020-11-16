@@ -21,7 +21,6 @@ import CustomPropTypes from 'app/constants/custom_prop_types';
 import EphemeralStore from 'app/store/ephemeral_store';
 import mattermostManaged from 'app/mattermost_managed';
 import BottomSheet from 'app/utils/bottom_sheet';
-import ImageCacheManager from 'app/utils/image_cache_manager';
 import {previewImageAtIndex, calculateDimensions, isGifTooLarge} from 'app/utils/images';
 import {normalizeProtocol} from 'app/utils/url';
 
@@ -32,7 +31,7 @@ const ANDROID_MAX_WIDTH = 4096;
 const VIEWPORT_IMAGE_OFFSET = 66;
 const VIEWPORT_IMAGE_REPLY_OFFSET = 13;
 
-export default class MarkdownImage extends React.Component {
+export default class MarkdownImage extends React.PureComponent {
     static propTypes = {
         children: PropTypes.node,
         deviceHeight: PropTypes.number.isRequired,
@@ -65,7 +64,7 @@ export default class MarkdownImage extends React.Component {
     componentDidMount() {
         this.mounted = true;
 
-        ImageCacheManager.cache(null, this.getSource(), this.setImageUrl);
+        this.setImageUrl(this.getSource());
     }
 
     static getDerivedStateFromProps(props) {
@@ -84,12 +83,20 @@ export default class MarkdownImage extends React.Component {
     componentDidUpdate(prevProps) {
         if (this.props.source !== prevProps.source) {
             // getSource also depends on serverURL, but that shouldn't change while this is mounted
-            ImageCacheManager.cache(null, this.getSource(), this.setImageUrl);
+            this.setImageUrl(this.getSource());
         }
     }
 
     componentWillUnmount() {
         this.mounted = false;
+    }
+
+    setImageRef = (ref) => {
+        this.imageRef = ref;
+    }
+
+    setItemRef = (ref) => {
+        this.itemRef = ref;
     }
 
     getSource = () => {
@@ -195,7 +202,7 @@ export default class MarkdownImage extends React.Component {
             },
         }];
 
-        previewImageAtIndex([this.refs.item], 0, files);
+        previewImageAtIndex([this.itemRef], 0, files);
     };
 
     loadImageSize = (source) => {
@@ -252,7 +259,7 @@ export default class MarkdownImage extends React.Component {
                         style={{width, height}}
                     >
                         <ProgressiveImage
-                            ref='image'
+                            ref={this.setImageRef}
                             defaultSource={source}
                             resizeMode='contain'
                             style={{width, height}}
@@ -282,7 +289,7 @@ export default class MarkdownImage extends React.Component {
 
         return (
             <View
-                ref='item'
+                ref={this.setItemRef}
                 style={style.container}
             >
                 {image}

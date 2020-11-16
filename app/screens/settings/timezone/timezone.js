@@ -53,7 +53,7 @@ export default class Timezone extends PureComponent {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         const {actions: {getSupportedTimezones}, timezones} = this.props;
 
         if (timezones.length === 0) {
@@ -207,7 +207,6 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
     return {
         container: {
             flex: 1,
-            backgroundColor: theme.centerChannelBg,
         },
         wrapper: {
             backgroundColor: changeOpacity(theme.centerChannelColor, 0.06),

@@ -23,7 +23,7 @@ import StatusBar from 'app/components/status_bar';
 import {BotTag, GuestTag} from 'app/components/tag';
 
 import {alertErrorWithFallback} from 'app/utils/general';
-import {changeOpacity, makeStyleSheetFromTheme, setNavigatorStyles} from 'app/utils/theme';
+import {changeOpacity, makeStyleSheetFromTheme} from 'app/utils/theme';
 import {t} from 'app/utils/i18n';
 import {isGuest} from 'app/utils/users';
 
@@ -31,7 +31,6 @@ import {
     goToScreen,
     popToRoot,
     dismissModal,
-    dismissAllModals,
     setButtons,
 } from 'app/actions/navigation';
 
@@ -83,12 +82,6 @@ export default class UserProfile extends PureComponent {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.props.theme !== nextProps.theme) {
-            setNavigatorStyles(this.props.componentId, nextProps.theme);
-        }
-    }
-
     componentDidMount() {
         this.navigationEventListener = Navigation.events().bindComponent(this);
 
@@ -116,7 +109,6 @@ export default class UserProfile extends PureComponent {
             return;
         }
 
-        await dismissAllModals();
         await popToRoot();
     };
 
@@ -213,7 +205,7 @@ export default class UserProfile extends PureComponent {
                 },
                 {
                     displayName: userDisplayName,
-                }
+                },
             );
         } else {
             this.close();

@@ -21,12 +21,12 @@ import KeyboardLayout from 'app/components/layout/keyboard_layout';
 import Loading from 'app/components/loading';
 import SearchBar from 'app/components/search_bar';
 import StatusBar from 'app/components/status_bar';
+import {NavigationTypes} from 'app/constants';
 import {alertErrorWithFallback} from 'app/utils/general';
 import {createProfilesSections, loadingText} from 'app/utils/member_list';
 import {
     changeOpacity,
     makeStyleSheetFromTheme,
-    setNavigatorStyles,
     getKeyboardAppearanceFromTheme,
 } from 'app/utils/theme';
 import {t} from 'app/utils/i18n';
@@ -93,16 +93,11 @@ export default class MoreDirectMessages extends PureComponent {
         this.mounted = false;
     }
 
-    componentDidUpdate(prevProps) {
-        const {componentId, theme} = this.props;
+    componentDidUpdate() {
         const {selectedCount, startingConversation} = this.state;
         const canStart = selectedCount > 0 && !startingConversation;
 
         this.updateNavigationButtons(canStart);
-
-        if (theme !== prevProps.theme) {
-            setNavigatorStyles(componentId, theme);
-        }
     }
 
     navigationButtonPressed({buttonId}) {
@@ -111,6 +106,10 @@ export default class MoreDirectMessages extends PureComponent {
         } else if (buttonId === CLOSE_BUTTON) {
             this.close();
         }
+    }
+
+    setSearchBarRef = (ref) => {
+        this.searchBarRef = ref;
     }
 
     close = () => {
@@ -226,7 +225,7 @@ export default class MoreDirectMessages extends PureComponent {
                 },
                 {
                     displayName,
-                }
+                },
             );
         }
 
@@ -253,7 +252,7 @@ export default class MoreDirectMessages extends PureComponent {
                 {
                     id: t('mobile.open_gm.error'),
                     defaultMessage: "We couldn't open a group message with those users. Please check your connection and try again.",
-                }
+                },
             );
         }
 
@@ -317,7 +316,7 @@ export default class MoreDirectMessages extends PureComponent {
         }
 
         if (success) {
-            EventEmitter.emit('close_channel_drawer');
+            EventEmitter.emit(NavigationTypes.CLOSE_MAIN_SIDEBAR);
             requestAnimationFrame(() => {
                 this.close();
             });
@@ -416,7 +415,7 @@ export default class MoreDirectMessages extends PureComponent {
             return (
                 <View style={style.container}>
                     <StatusBar/>
-                    <Loading/>
+                    <Loading color={theme.centerChannelColor}/>
                 </View>
             );
         }
@@ -460,7 +459,7 @@ export default class MoreDirectMessages extends PureComponent {
                 <StatusBar/>
                 <View style={[style.searchBar, padding(isLandscape)]}>
                     <SearchBar
-                        ref='search_bar'
+                        ref={this.setSearchBarRef}
                         placeholder={formatMessage({id: 'search_bar.search', defaultMessage: 'Search'})}
                         cancelTitle={formatMessage({id: 'mobile.post.cancel', defaultMessage: 'Cancel'})}
                         backgroundColor='transparent'

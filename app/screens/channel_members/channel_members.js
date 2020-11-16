@@ -28,7 +28,6 @@ import {createProfilesSections, loadingText} from 'app/utils/member_list';
 import {
     changeOpacity,
     makeStyleSheetFromTheme,
-    setNavigatorStyles,
     getKeyboardAppearanceFromTheme,
 } from 'app/utils/theme';
 import {popTopScreen, setButtons} from 'app/actions/navigation';
@@ -90,22 +89,21 @@ export default class ChannelMembers extends PureComponent {
         this.getProfiles();
     }
 
-    componentDidUpdate(prevProps) {
-        const {componentId, theme} = this.props;
+    componentDidUpdate() {
         const {removing, selectedIds} = this.state;
         const enabled = Object.keys(selectedIds).length > 0 && !removing;
 
         this.enableRemoveOption(enabled);
-
-        if (theme !== prevProps.theme) {
-            setNavigatorStyles(componentId, theme);
-        }
     }
 
     navigationButtonPressed({buttonId}) {
         if (buttonId === this.removeButton.id) {
             this.handleRemoveMembersPress();
         }
+    }
+
+    setSearchBarRef = (ref) => {
+        this.searchBarRef = ref;
     }
 
     clearSearch = () => {
@@ -134,7 +132,7 @@ export default class ChannelMembers extends PureComponent {
                 actions.getProfilesInChannel(
                     currentChannelId,
                     this.page + 1,
-                    General.PROFILE_CHUNK_SIZE
+                    General.PROFILE_CHUNK_SIZE,
                 ).then(this.loadedProfiles);
             });
         }
@@ -154,7 +152,7 @@ export default class ChannelMembers extends PureComponent {
                 formatMessage({
                     id: 'mobile.routes.channel_members.action_message',
                     defaultMessage: 'You must select at least one member to remove from the channel.',
-                })
+                }),
             );
             return;
         }
@@ -174,7 +172,7 @@ export default class ChannelMembers extends PureComponent {
                 }, {
                     text: formatMessage({id: 'mobile.channel_list.alertYes', defaultMessage: 'Yes'}),
                     onPress: () => this.removeMembers(membersToRemove),
-                }]
+                }],
             );
         }
     };
@@ -331,7 +329,7 @@ export default class ChannelMembers extends PureComponent {
             return (
                 <View style={style.container}>
                     <StatusBar/>
-                    <Loading/>
+                    <Loading color={theme.centerChannelColor}/>
                 </View>
             );
         }
@@ -371,7 +369,7 @@ export default class ChannelMembers extends PureComponent {
                 <StatusBar/>
                 <View style={[style.searchBar, padding(isLandscape)]}>
                     <SearchBar
-                        ref='search_bar'
+                        ref={this.setSearchBarRef}
                         placeholder={formatMessage({id: 'search_bar.search', defaultMessage: 'Search'})}
                         cancelTitle={formatMessage({id: 'mobile.post.cancel', defaultMessage: 'Cancel'})}
                         backgroundColor='transparent'

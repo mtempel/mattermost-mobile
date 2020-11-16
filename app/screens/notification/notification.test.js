@@ -3,7 +3,6 @@
 
 import React from 'react';
 import {shallow} from 'enzyme';
-import {InteractionManager} from 'react-native';
 
 import Preferences from 'mattermost-redux/constants/preferences';
 
@@ -16,8 +15,6 @@ jest.mock('react-native-navigation', () => ({
         })),
     },
 }));
-
-InteractionManager.runAfterInteractions = jest.fn((cb) => cb());
 
 describe('Notification', () => {
     const baseProps = {

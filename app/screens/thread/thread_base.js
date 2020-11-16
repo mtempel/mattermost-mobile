@@ -11,7 +11,6 @@ import {General, RequestStatus} from 'mattermost-redux/constants';
 import Loading from 'app/components/loading';
 import DeletedPost from 'app/components/deleted_post';
 import {resetToChannel, popTopScreen, mergeNavigationOptions} from 'app/actions/navigation';
-import {setNavigatorStyles} from 'app/utils/theme';
 
 export default class ThreadBase extends PureComponent {
     static propTypes = {
@@ -68,10 +67,6 @@ export default class ThreadBase extends PureComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.props.theme !== nextProps.theme) {
-            setNavigatorStyles(this.props.componentId, nextProps.theme);
-        }
-
         if (this.props.postIds !== nextProps.postIds && !nextProps.postIds.length) {
             this.close();
             return;
@@ -106,13 +101,15 @@ export default class ThreadBase extends PureComponent {
     };
 
     renderFooter = () => {
-        if (!this.hasRootPost() && this.props.threadLoadingStatus.status !== RequestStatus.STARTED) {
+        const {theme, threadLoadingStatus} = this.props;
+
+        if (!this.hasRootPost() && threadLoadingStatus.status !== RequestStatus.STARTED) {
             return (
-                <DeletedPost theme={this.props.theme}/>
+                <DeletedPost theme={theme}/>
             );
-        } else if (this.props.threadLoadingStatus.status === RequestStatus.STARTED) {
+        } else if (threadLoadingStatus.status === RequestStatus.STARTED) {
             return (
-                <Loading/>
+                <Loading color={theme.centerChannelColor}/>
             );
         }
 

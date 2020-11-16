@@ -5,7 +5,7 @@ import DeepLinkTypes from './deep_linking';
 import DeviceTypes from './device';
 import ListTypes from './list';
 import NavigationTypes from './navigation';
-import PermissionTypes from './permissions';
+import Types from './types';
 import ViewTypes, {UpgradeTypes} from './view';
 
 export {
@@ -13,7 +13,7 @@ export {
     DeviceTypes,
     ListTypes,
     NavigationTypes,
-    PermissionTypes,
     UpgradeTypes,
+    Types,
     ViewTypes,
 };

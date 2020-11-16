@@ -38,7 +38,7 @@ export default class TeamsList extends PureComponent {
         actions: PropTypes.shape({
             handleTeamChange: PropTypes.func.isRequired,
         }).isRequired,
-        closeChannelDrawer: PropTypes.func.isRequired,
+        closeMainSidebar: PropTypes.func.isRequired,
         currentTeamId: PropTypes.string.isRequired,
         hasOtherJoinableTeams: PropTypes.bool,
         teamIds: PropTypes.array.isRequired,
@@ -66,7 +66,7 @@ export default class TeamsList extends PureComponent {
     }
 
     selectTeam = (teamId) => {
-        const {actions, closeChannelDrawer, currentTeamId} = this.props;
+        const {actions, closeMainSidebar, currentTeamId} = this.props;
 
         if (teamId !== currentTeamId) {
             telemetry.reset();
@@ -80,19 +80,17 @@ export default class TeamsList extends PureComponent {
                 actions.handleTeamChange(teamId);
             }
 
-            closeChannelDrawer();
+            closeMainSidebar();
         });
     };
 
     goToSelectTeam = preventDoubleTap(async () => {
         const {intl} = this.context;
-        const {theme} = this.props;
         const {serverUrl} = this.state;
         const screen = 'SelectTeam';
         const title = intl.formatMessage({id: 'mobile.routes.selectTeam', defaultMessage: 'Select Team'});
         const passProps = {
             currentUrl: serverUrl,
-            theme,
         };
         const options = {
             topBar: {
@@ -195,7 +193,7 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
                     height: ANDROID_TOP_PORTRAIT,
                 },
                 ios: {
-                    height: 44,
+                    height: 54,
                 },
             }),
         },

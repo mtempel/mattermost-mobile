@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelMembers should match snapshot 1`] = `
-<ForwardRef(forwardConnectRef)>
+<Connect(KeyboardLayout)>
   <Connect(StatusBar) />
   <View
     style={
@@ -45,6 +45,7 @@ exports[`ChannelMembers should match snapshot 1`] = `
     />
   </View>
   <CustomList
+    canRefresh={true}
     data={Array []}
     extraData={Object {}}
     isLandscape={false}
@@ -68,6 +69,7 @@ exports[`ChannelMembers should match snapshot 1`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",
@@ -86,5 +88,5 @@ exports[`ChannelMembers should match snapshot 1`] = `
       }
     }
   />
-</ForwardRef(forwardConnectRef)>
+</Connect(KeyboardLayout)>
 `;

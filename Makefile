@@ -7,7 +7,6 @@
 .PHONY: build-pr can-build-pr prepare-pr
 .PHONY: test help
 
-POD := $(shell which pod 2> /dev/null)
 OS := $(shell sh -c 'uname -s 2>/dev/null')
 BASE_ASSETS = $(shell find assets/base -type d) $(shell find assets/base -type f -name '*')
 OVERRIDE_ASSETS = $(shell find assets/override -type d 2> /dev/null) $(shell find assets/override -type f -name '*' 2> /dev/null)
@@ -33,13 +32,11 @@ npm-ci: package.json
 
 .podinstall:
 ifeq ($(OS), Darwin)
-ifdef POD
+	@echo "Required version of Cocoapods is not installed"
+	@echo Installing gems;
+	@bundle install
 	@echo Getting Cocoapods dependencies;
-	@cd ios && pod install;
-else
-	@echo "Cocoapods is not installed https://cocoapods.org/"
-	@exit 1
-endif
+	@cd ios && bundle exec pod install;
 endif
 	@touch $@
 
@@ -74,6 +71,9 @@ clean: ## Cleans dependencies, previous builds and temp files
 	@echo Cleanup finished
 
 post-install:
+	@./node_modules/.bin/patch-package
+	@./node_modules/.bin/jetify
+
 	@rm -f node_modules/intl/.babelrc
 	@# Hack to get react-intl and its dependencies to work with react-native
 	@# Based off of https://github.com/este/este/blob/master/gulp/native-fix.js
@@ -81,8 +81,6 @@ post-install:
 	@sed -i'' -e 's|"./lib/locales": false|"./lib/locales": "./lib/locales"|g' node_modules/intl-messageformat/package.json
 	@sed -i'' -e 's|"./lib/locales": false|"./lib/locales": "./lib/locales"|g' node_modules/intl-relativeformat/package.json
 	@sed -i'' -e 's|"./locale-data/complete.js": false|"./locale-data/complete.js": "./locale-data/complete.js"|g' node_modules/intl/package.json
-
-	@./node_modules/.bin/patch-package
 
 start: | pre-run ## Starts the React Native packager server
 	$(call start_packager)

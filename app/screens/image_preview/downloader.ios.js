@@ -3,11 +3,12 @@
 
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
-import {Alert, Animated, CameraRoll, InteractionManager, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Animated, InteractionManager, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import {CircularProgress} from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {intlShape} from 'react-intl';
+import CameraRoll from '@react-native-community/cameraroll';
 
 import {Client4} from 'mattermost-redux/client';
 
@@ -47,6 +48,16 @@ export default class Downloader extends PureComponent {
         intl: intlShape,
     };
 
+    static getDerivedStateFromProps(props) {
+        if (!props.show) {
+            return {
+                didCancel: false,
+                progress: 0,
+            };
+        }
+        return null;
+    }
+
     constructor(props) {
         super(props);
 
@@ -73,17 +84,11 @@ export default class Downloader extends PureComponent {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (!this.props.show && nextProps.show) {
-            this.toggleDownloader();
-            this.setState({
-                didCancel: false,
-                progress: 0,
-            });
-        } else if (!nextProps.show && this.props.show) {
-            this.toggleDownloader(false);
-        } else if (this.props.deviceHeight !== nextProps.deviceHeight) {
-            this.recenterDownloader(nextProps);
+    componentDidUpdate(prevProps) {
+        if (this.props.show !== prevProps.show) {
+            this.toggleDownloader(this.props.show);
+        } else if (this.props.deviceHeight !== prevProps.deviceHeight) {
+            this.recenterDownloader(this.props);
         }
     }
 
@@ -221,7 +226,7 @@ export default class Downloader extends PureComponent {
                     defaultMessage: 'OK',
                 }),
                 onPress: () => this.downloadDidCancel(),
-            }]
+            }],
         );
     };
 
@@ -276,7 +281,7 @@ export default class Downloader extends PureComponent {
             let path = res.path();
 
             if (saveToCameraRoll) {
-                path = await CameraRoll.saveToCameraRoll(path, 'photo');
+                path = await CameraRoll.saveToCameraRoll(path, 'photo'); /* eslint-disable-line require-atomic-updates */
             }
 
             if (this.mounted) {
@@ -307,7 +312,7 @@ export default class Downloader extends PureComponent {
                     // do nothing
                 });
             }
-            if (error.message !== 'cancelled' && this.mounted) {
+            if (error.message !== 'canceled' && this.mounted) {
                 this.showDownloadFailedAlert();
             } else {
                 this.downloadDidCancel();
@@ -422,7 +427,8 @@ const styles = StyleSheet.create({
         width: 200,
         height: 200,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 40,
     },
     progressCirclePercentage: {
         flex: 1,

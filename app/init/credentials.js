@@ -29,7 +29,11 @@ export const setAppCredentials = (deviceToken, currentUserId, token, url) => {
             EphemeralStore.deviceToken = deviceToken;
             EphemeralStore.currentServerUrl = url;
             AsyncStorage.setItem(CURRENT_SERVER, url);
-            KeyChain.setInternetCredentials(url, username, token, {accessGroup: mattermostManaged.appGroupIdentifier});
+            const options = {
+                accessGroup: mattermostManaged.appGroupIdentifier,
+                securityLevel: 'SECURE_SOFTWARE',
+            };
+            KeyChain.setInternetCredentials(url, username, token, options);
         } catch (e) {
             console.warn('could not set credentials', e); //eslint-disable-line no-console
         }
@@ -50,7 +54,7 @@ export const getAppCredentials = async () => {
 export const removeAppCredentials = async () => {
     const url = await getCurrentServerUrl();
 
-    Client4.setCSRF(null);
+    Client4.setCSRF('');
     Client4.serverVersion = '';
     Client4.setUserId('');
     Client4.setToken('');

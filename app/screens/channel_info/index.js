@@ -5,10 +5,12 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 
 import {
+    convertChannelToPrivate,
     favoriteChannel,
     getChannelStats,
     getChannel,
     deleteChannel,
+    unarchiveChannel,
     unfavoriteChannel,
     updateChannelNotifyProps,
 } from 'mattermost-redux/actions/channels';
@@ -28,9 +30,13 @@ import {
 import {getCurrentUserId, getUser, getStatusForUserId, getCurrentUserRoles} from 'mattermost-redux/selectors/entities/users';
 import {areChannelMentionsIgnored, getUserIdFromChannelName, isChannelMuted, showDeleteOption, showManagementOptions} from 'mattermost-redux/utils/channel_utils';
 import {isAdmin as checkIsAdmin, isChannelAdmin as checkIsChannelAdmin, isSystemAdmin as checkIsSystemAdmin} from 'mattermost-redux/utils/user_utils';
-import {getConfig, getLicense} from 'mattermost-redux/selectors/entities/general';
+import {getConfig, getLicense, hasNewPermissions} from 'mattermost-redux/selectors/entities/general';
 import {isTimezoneEnabled} from 'mattermost-redux/selectors/entities/timezone';
 import {getUserCurrentTimezone} from 'mattermost-redux/utils/timezone_utils';
+import Permissions from 'mattermost-redux/constants/permissions';
+import {haveITeamPermission} from 'mattermost-redux/selectors/entities/roles';
+import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
+import {isMinimumServerVersion} from 'mattermost-redux/utils/helpers';
 
 import {
     closeDMChannel,
@@ -54,6 +60,7 @@ function mapStateToProps(state) {
     const currentChannelCreatorName = currentChannelCreator && currentChannelCreator.username;
     const currentChannelStats = getCurrentChannelStats(state);
     const currentChannelMemberCount = currentChannelStats && currentChannelStats.member_count;
+    const currentChannelPinnedPostCount = currentChannelStats && currentChannelStats.pinnedpost_count;
     let currentChannelGuestCount = (currentChannelStats && currentChannelStats.guest_count) || 0;
     const currentChannelMember = getMyCurrentChannelMembership(state);
     const currentUserId = getCurrentUserId(state);
@@ -61,6 +68,7 @@ function mapStateToProps(state) {
     const isCurrent = currentChannel.id === state.entities.channels.currentChannelId;
     const isFavorite = favoriteChannels && favoriteChannels.indexOf(currentChannel.id) > -1;
     const roles = getCurrentUserRoles(state);
+    const {serverVersion} = state.entities.general;
     let canManageUsers = currentChannel.hasOwnProperty('id') ? canManageChannelMembers(state) : false;
     if (currentChannel.group_constrained) {
         canManageUsers = false;
@@ -98,14 +106,25 @@ function mapStateToProps(state) {
         timeZone = getUserCurrentTimezone(currentUser.timezone);
     }
 
+    let canUnarchiveChannel = false;
+    if (hasNewPermissions(state) && isMinimumServerVersion(serverVersion, 5, 20)) {
+        canUnarchiveChannel = haveITeamPermission(state, {
+            team: getCurrentTeamId(state),
+            permission: Permissions.MANAGE_TEAM,
+        });
+    }
+
     return {
         canDeleteChannel: showDeleteOption(state, config, license, currentChannel, isAdmin, isSystemAdmin, isChannelAdmin),
+        canUnarchiveChannel,
+        canConvertChannel: isAdmin,
         viewArchivedChannels,
         canEditChannel,
         currentChannel,
         currentChannelCreatorName,
         currentChannelMemberCount,
         currentChannelGuestCount,
+        currentChannelPinnedPostCount,
         currentUserId,
         currentUserIsGuest,
         isChannelMuted: isChannelMuted(currentChannelMember),
@@ -128,7 +147,9 @@ function mapDispatchToProps(dispatch) {
             clearPinnedPosts,
             closeDMChannel,
             closeGMChannel,
+            convertChannelToPrivate,
             deleteChannel,
+            unarchiveChannel,
             getChannelStats,
             getChannel,
             leaveChannel,

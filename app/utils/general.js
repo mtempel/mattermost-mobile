@@ -6,6 +6,8 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import {Posts} from 'mattermost-redux/constants';
 
+const INVALID_VERSIONS = ['1.29.0'];
+
 export function fromAutoResponder(post) {
     return Boolean(post.type && (post.type === Posts.SYSTEM_AUTO_RESPONDER));
 }
@@ -17,12 +19,12 @@ export function toTitleCase(str) {
     return str.replace(/\w\S*/g, doTitleCase);
 }
 
-export function alertErrorWithFallback(intl, error, fallback, values) {
+export function alertErrorWithFallback(intl, error, fallback, values, buttons) {
     let msg = error.message;
     if (!msg || msg === 'Network request failed') {
         msg = intl.formatMessage(fallback, values);
     }
-    Alert.alert('', msg);
+    Alert.alert('', msg, buttons);
 }
 
 export function alertErrorIfInvalidPermissions(result) {
@@ -77,4 +79,17 @@ export function throttle(fn, limit, ...args) {
             inThrottle = true;
         }
     };
+}
+
+export function isPendingPost(postId, userId) {
+    return postId.startsWith(userId);
+}
+
+export function validatePreviousVersion(previousVersion) {
+    if (!previousVersion || INVALID_VERSIONS.includes(previousVersion)) {
+        console.log(`Previous version "${previousVersion}" is no longer valid`); //eslint-disable-line no-console
+        return false;
+    }
+
+    return true;
 }

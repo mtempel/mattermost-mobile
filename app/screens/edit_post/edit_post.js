@@ -8,18 +8,20 @@ import {
     View,
 } from 'react-native';
 import {Navigation} from 'react-native-navigation';
+import {KeyboardTrackingView} from 'react-native-keyboard-tracking-view';
 
 import {RequestStatus} from 'mattermost-redux/constants';
 
+import Autocomplete, {AUTOCOMPLETE_MAX_HEIGHT} from 'app/components/autocomplete';
 import ErrorText from 'app/components/error_text';
 import Loading from 'app/components/loading';
 import StatusBar from 'app/components/status_bar';
 import TextInputWithLocalizedPlaceholder from 'app/components/text_input_with_localized_placeholder';
 import {paddingHorizontal as padding} from 'app/components/safe_area_view/iphone_x_spacing';
+import {switchKeyboardForCodeBlocks} from 'app/utils/markdown';
 import {
     changeOpacity,
     makeStyleSheetFromTheme,
-    setNavigatorStyles,
     getKeyboardAppearanceFromTheme,
 } from 'app/utils/theme';
 import {t} from 'app/utils/i18n';
@@ -56,7 +58,13 @@ export default class EditPost extends PureComponent {
     constructor(props, context) {
         super(props);
 
-        this.state = {message: props.post.message};
+        this.state = {
+            message: props.post.message,
+            cursorPosition: 0,
+            autocompleteVisible: false,
+            keyboardType: 'default',
+        };
+
         this.rightButton.color = props.theme.sidebarHeaderTextColor;
         this.rightButton.text = context.intl.formatMessage({id: 'edit_post.save', defaultMessage: 'Save'});
 
@@ -73,10 +81,6 @@ export default class EditPost extends PureComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.props.theme !== nextProps.theme) {
-            setNavigatorStyles(this.props.componentId, nextProps.theme);
-        }
-
         const {editPostRequest} = nextProps;
 
         if (this.props.editPostRequest !== editPostRequest) {
@@ -144,7 +148,14 @@ export default class EditPost extends PureComponent {
     };
 
     onPostChangeText = (message) => {
-        this.setState({message});
+        // Workaround to avoid iOS emdash autocorrect in Code Blocks
+        if (Platform.OS === 'ios') {
+            const callback = () => this.onPostSelectionChange(null, true);
+            this.setState({message}, callback);
+        } else {
+            this.setState({message});
+        }
+
         if (message) {
             this.emitCanEditPost(true);
         } else {
@@ -152,9 +163,28 @@ export default class EditPost extends PureComponent {
         }
     };
 
+    handleOnSelectionChange = (event) => {
+        this.onPostSelectionChange(event, false);
+    };
+
+    onPostSelectionChange = (event, fromOnPostChangeText) => {
+        const cursorPosition = fromOnPostChangeText ? this.state.cursorPosition : event.nativeEvent.selection.end;
+
+        if (Platform.OS === 'ios') {
+            const keyboardType = switchKeyboardForCodeBlocks(this.state.message, cursorPosition);
+            this.setState({cursorPosition, keyboardType});
+        } else {
+            this.setState({cursorPosition});
+        }
+    };
+
+    onAutocompleteVisible = (autocompleteVisible) => {
+        this.setState({autocompleteVisible});
+    }
+
     render() {
         const {deviceHeight, deviceWidth, theme, isLandscape} = this.props;
-        const {editing, message, error} = this.state;
+        const {editing, message, error, autocompleteVisible} = this.state;
 
         const style = getStyleSheet(theme);
 
@@ -162,7 +192,7 @@ export default class EditPost extends PureComponent {
             return (
                 <View style={style.container}>
                     <StatusBar/>
-                    <Loading/>
+                    <Loading color={theme.centerChannelColor}/>
                 </View>
             );
         }
@@ -179,6 +209,10 @@ export default class EditPost extends PureComponent {
         }
 
         const height = Platform.OS === 'android' ? (deviceHeight / 2) - 40 : (deviceHeight / 2);
+        const autocompleteStyles = [
+            style.autocompleteContainer,
+            {flex: autocompleteVisible ? 1 : 0},
+        ];
 
         return (
             <View style={style.container}>
@@ -200,9 +234,21 @@ export default class EditPost extends PureComponent {
                             underlineColorAndroid='transparent'
                             disableFullscreenUI={true}
                             keyboardAppearance={getKeyboardAppearanceFromTheme(this.props.theme)}
+                            onSelectionChange={this.handleOnSelectionChange}
+                            keyboardType={this.state.keyboardType}
                         />
                     </View>
                 </View>
+                <KeyboardTrackingView style={autocompleteStyles}>
+                    <Autocomplete
+                        cursorPosition={this.state.cursorPosition}
+                        maxHeight={AUTOCOMPLETE_MAX_HEIGHT}
+                        onChangeText={this.onPostChangeText}
+                        value={message}
+                        nestedScrollEnabled={true}
+                        onVisible={this.onAutocompleteVisible}
+                    />
+                </KeyboardTrackingView>
             </View>
         );
     }
@@ -212,7 +258,6 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
     return {
         container: {
             flex: 1,
-            backgroundColor: theme.centerChannelBg,
         },
         scrollView: {
             flex: 1,
@@ -237,6 +282,10 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
             fontSize: 14,
             padding: 15,
             textAlignVertical: 'top',
+        },
+        autocompleteContainer: {
+            flex: 1,
+            justifyContent: 'flex-end',
         },
     };
 });

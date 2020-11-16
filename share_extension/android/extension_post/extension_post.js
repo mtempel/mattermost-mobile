@@ -3,7 +3,7 @@
 
 import React, {PureComponent} from 'react';
 import {NavigationActions} from 'react-navigation';
-import TouchableItem from 'react-navigation-stack/dist/views/TouchableItem';
+import TouchableItem from 'react-navigation-stack/lib/module/views/TouchableItem';
 import PropTypes from 'prop-types';
 import {intlShape} from 'react-intl';
 
@@ -223,7 +223,7 @@ export default class ExtensionPost extends PureComponent {
                         style: 'cancel',
                     },
                 ],
-                {onDismiss: resolve}
+                {onDismiss: resolve},
             );
         });
     }
@@ -324,7 +324,7 @@ export default class ExtensionPost extends PureComponent {
         let granted;
         if (!hasPermission) {
             granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
             );
         }
 
@@ -406,17 +406,34 @@ export default class ExtensionPost extends PureComponent {
     onPost = () => {
         const {channelId, files, value} = this.state;
         const {currentUserId} = this.props;
+        const {formatMessage} = this.context.intl;
 
-        const data = {
-            channelId,
-            currentUserId,
-            files,
-            token: this.token,
-            url: this.url,
-            value,
-        };
+        if (value.length > MAX_MESSAGE_LENGTH) {
+            Alert.alert(
+                formatMessage({
+                    id: 'mobile.share_extension.too_long_title',
+                    defaultMessage: 'Message is too long',
+                }),
+                formatMessage({
+                    id: 'mobile.share_extension.too_long_message',
+                    defaultMessage: 'Character count: {count}/{max}',
+                }, {
+                    count: value.length,
+                    max: MAX_MESSAGE_LENGTH,
+                }),
+            );
+        } else {
+            const data = {
+                channelId,
+                currentUserId,
+                files,
+                token: this.token,
+                url: this.url,
+                value,
+            };
 
-        this.onClose(data);
+            this.onClose(data);
+        }
     };
 
     renderBody = () => {
@@ -435,7 +452,6 @@ export default class ExtensionPost extends PureComponent {
                 <TextInput
                     ref={this.getInputRef}
                     autoCapitalize='sentences'
-                    maxLength={MAX_MESSAGE_LENGTH}
                     multiline={true}
                     onBlur={this.handleBlur}
                     onChangeText={this.handleTextChange}
@@ -566,10 +582,33 @@ export default class ExtensionPost extends PureComponent {
         );
     };
 
+    lengthCounterColor = (count) => {
+        if (count < 0) {
+            return styles.textTooLong;
+        }
+        return styles.textLengthOk;
+    }
+
+    renderMessageLengthRemaining = () => {
+        const {value} = this.state;
+        const messageLengthRemaining = MAX_MESSAGE_LENGTH - value.length;
+
+        if (value.length === 0) {
+            return null;
+        }
+
+        const renderStyle = [styles.messageLengthRemaining, this.lengthCounterColor(messageLengthRemaining)];
+        return (
+            <Text style={renderStyle}>
+                {messageLengthRemaining}
+            </Text>
+        );
+    };
+
     render() {
         const {formatMessage} = this.context.intl;
         const {maxFileSize} = this.props;
-        const {error, hasPermission, files, totalSize, loaded} = this.state;
+        const {error, hasPermission, files, totalSize, loaded, teamId} = this.state;
 
         if (!loaded) {
             return (
@@ -579,6 +618,15 @@ export default class ExtensionPost extends PureComponent {
 
         if (error) {
             return this.renderErrorMessage(error);
+        }
+
+        if (!teamId) {
+            const teamRequired = formatMessage({
+                id: 'mobile.extension.team_required',
+                defaultMessage: 'You must belong to a team before you can share files.',
+            });
+
+            return this.renderErrorMessage(teamRequired);
         }
 
         if (this.token && this.url) {
@@ -610,6 +658,7 @@ export default class ExtensionPost extends PureComponent {
                     <View style={styles.wrapper}>
                         {this.renderBody()}
                         <View style={styles.flex}>
+                            {this.renderMessageLengthRemaining()}
                             {this.renderTeamButton()}
                             {this.renderChannelButton()}
                         </View>
@@ -653,6 +702,19 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
         scrollView: {
             flex: 1,
             padding: 15,
+        },
+        messageLengthRemaining: {
+            paddingTop: 5,
+            paddingBottom: 5,
+            paddingLeft: 15,
+            paddingRight: 15,
+            opacity: 0.5,
+        },
+        textLengthOk: {
+            color: theme.centerChannelColor,
+        },
+        textTooLong: {
+            color: theme.errorTextColor,
         },
         input: {
             flex: 1,

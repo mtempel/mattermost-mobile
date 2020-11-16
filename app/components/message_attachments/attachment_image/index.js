@@ -8,7 +8,6 @@ import {Image, View} from 'react-native';
 import ProgressiveImage from 'app/components/progressive_image';
 import TouchableWithFeedback from 'app/components/touchable_with_feedback';
 import {isGifTooLarge, previewImageAtIndex, calculateDimensions} from 'app/utils/images';
-import ImageCacheManager from 'app/utils/image_cache_manager';
 import {changeOpacity, makeStyleSheetFromTheme} from 'app/utils/theme';
 
 const VIEWPORT_IMAGE_OFFSET = 100;
@@ -42,14 +41,22 @@ export default class AttachmentImage extends PureComponent {
         }
 
         if (imageUrl) {
-            ImageCacheManager.cache(null, imageUrl, this.setImageUrl);
+            this.setImageUrl(imageUrl);
         }
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.imageUrl && (prevProps.imageUrl !== this.props.imageUrl)) {
-            ImageCacheManager.cache(null, this.props.imageUrl, this.setImageUrl);
+            this.setImageUrl(this.props.imageUrl);
         }
+    }
+
+    setImageRef = (ref) => {
+        this.imageRef = ref;
+    }
+
+    setItemRef = (ref) => {
+        this.itemRef = ref;
     }
 
     handlePreviewImage = () => {
@@ -79,7 +86,7 @@ export default class AttachmentImage extends PureComponent {
                 localPath: uri,
             },
         }];
-        previewImageAtIndex([this.refs.item], 0, files);
+        previewImageAtIndex([this.itemRef], 0, files);
     };
 
     setImageDimensions = (imageUri, dimensions, originalWidth, originalHeight) => {
@@ -132,7 +139,8 @@ export default class AttachmentImage extends PureComponent {
         if (imageUri) {
             progressiveImage = (
                 <ProgressiveImage
-                    ref='image'
+                    ref={this.setImageRef}
+                    imageStyle={style.attachmentMargin}
                     style={{height, width}}
                     imageUri={imageUri}
                     resizeMode='contain'
@@ -149,7 +157,7 @@ export default class AttachmentImage extends PureComponent {
                 type={'none'}
             >
                 <View
-                    ref='item'
+                    ref={this.setItemRef}
                     style={[style.imageContainer, {width, height}]}
                 >
                     {progressiveImage}
@@ -169,6 +177,12 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
             borderWidth: 1,
             borderRadius: 2,
             flex: 1,
+        },
+        attachmentMargin: {
+            marginTop: 2.5,
+            marginLeft: 2.5,
+            marginBottom: 5,
+            marginRight: 5,
         },
     };
 });

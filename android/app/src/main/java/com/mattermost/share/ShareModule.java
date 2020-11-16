@@ -9,7 +9,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.Arguments;
-import de.wwu-teamchat.MainApplication;
+import com.mattermost.rnbeta.MainApplication;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -39,6 +39,7 @@ public class ShareModule extends ReactContextBaseJavaModule {
     private final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final MainApplication mApplication;
+    public static final String CACHE_DIR_NAME = "mmShare";
 
     public ShareModule(MainApplication application, ReactApplicationContext reactContext) {
         super(reactContext);
@@ -67,6 +68,7 @@ public class ShareModule extends ReactContextBaseJavaModule {
     @Override
     public Map<String, Object> getConstants() {
         HashMap<String, Object> constants = new HashMap<>(1);
+        constants.put("cacheDirName", CACHE_DIR_NAME);
         constants.put("isOpened", mApplication.sharedExtensionIsOpened);
         mApplication.sharedExtensionIsOpened = false;
         return constants;
@@ -77,7 +79,7 @@ public class ShareModule extends ReactContextBaseJavaModule {
         this.clear();
         Activity currentActivity = getCurrentActivity();
         if (currentActivity != null) {
-            currentActivity.finish();
+            currentActivity.finishAndRemoveTask();
         }
 
         if (data != null && data.hasKey("url")) {
@@ -133,7 +135,7 @@ public class ShareModule extends ReactContextBaseJavaModule {
         Activity currentActivity = getCurrentActivity();
 
         if (currentActivity != null) {
-            this.tempFolder = new File(currentActivity.getCacheDir(), "mmShare");
+            this.tempFolder = new File(currentActivity.getCacheDir(), CACHE_DIR_NAME);
             Intent intent = currentActivity.getIntent();
             action = intent.getAction();
             type = intent.getType();
@@ -192,8 +194,12 @@ public class ShareModule extends ReactContextBaseJavaModule {
         JSONObject json = new JSONObject();
         try {
             json.put("user_id", data.getString("currentUserId"));
-            json.put("channel_id", data.getString("channelId"));
-            json.put("message", data.getString("value"));
+            if (data.hasKey("channelId")) {
+                json.put("channel_id", data.getString("channelId"));
+            }
+            if (data.hasKey("value")) {
+                json.put("message", data.getString("value"));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

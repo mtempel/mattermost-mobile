@@ -7,7 +7,7 @@ import {shallow} from 'enzyme';
 import Preferences from 'mattermost-redux/constants/preferences';
 
 import {DeviceTypes} from 'app/constants';
-import MainSidebar from 'app/components/sidebars/main/main_sidebar';
+import MainSidebar from 'app/components/sidebars/main/main_sidebar.ios';
 import SidebarSettings from './index';
 
 jest.mock('react-intl');
@@ -24,7 +24,7 @@ describe('SidebarSettings', () => {
 
     test('should match, full snapshot', async () => {
         const wrapper = shallow(
-            <SidebarSettings {...baseProps}/>
+            <SidebarSettings {...baseProps}/>,
         );
 
         expect(wrapper.getElement()).toMatchSnapshot();
@@ -35,7 +35,7 @@ describe('SidebarSettings', () => {
 
     test('should set the Permanent Sidebar value to false', async () => {
         const wrapper = shallow(
-            <SidebarSettings {...baseProps}/>
+            <SidebarSettings {...baseProps}/>,
         );
 
         await wrapper.instance().loadSetting();
@@ -46,7 +46,7 @@ describe('SidebarSettings', () => {
         DeviceTypes.IS_TABLET = true;
 
         const wrapper = shallow(
-            <SidebarSettings {...baseProps}/>
+            <SidebarSettings {...baseProps}/>,
         );
 
         const mainProps = {
@@ -56,6 +56,7 @@ describe('SidebarSettings', () => {
                 makeDirectChannel: jest.fn(),
                 setChannelDisplayName: jest.fn(),
                 setChannelLoading: jest.fn(),
+                joinChannel: jest.fn(),
             },
             blurPostTextBox: jest.fn(),
             currentTeamId: 'current-team-id',
@@ -67,7 +68,7 @@ describe('SidebarSettings', () => {
         };
 
         const mainSidebar = shallow(
-            <MainSidebar {...mainProps}/>
+            <MainSidebar {...mainProps}/>,
         );
 
         await wrapper.instance().loadSetting();

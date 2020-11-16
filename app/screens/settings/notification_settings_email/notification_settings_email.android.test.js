@@ -11,12 +11,6 @@ import RadioButtonGroup from 'app/components/radio_button';
 
 import NotificationSettingsEmailAndroid from './notification_settings_email.android.js';
 
-jest.mock('Platform', () => {
-    const Platform = require.requireActual('Platform');
-    Platform.OS = 'android';
-    return Platform;
-});
-
 describe('NotificationSettingsEmailAndroid', () => {
     const baseProps = {
         currentUser: {id: 'current_user_id'},
@@ -30,14 +24,13 @@ describe('NotificationSettingsEmailAndroid', () => {
             savePreferences: jest.fn(),
         },
         sendEmailNotifications: true,
-        siteName: 'Mattermost',
         theme: Preferences.THEMES.default,
         componentId: 'component-id',
     };
 
     test('should match snapshot', () => {
         const wrapper = shallowWithIntl(
-            <NotificationSettingsEmailAndroid {...baseProps}/>
+            <NotificationSettingsEmailAndroid {...baseProps}/>,
         );
 
         const style = {
@@ -60,7 +53,7 @@ describe('NotificationSettingsEmailAndroid', () => {
 
     test('should match state on setEmailInterval', () => {
         const wrapper = shallowWithIntl(
-            <NotificationSettingsEmailAndroid {...baseProps}/>
+            <NotificationSettingsEmailAndroid {...baseProps}/>,
         );
 
         wrapper.setState({interval: '0'});
@@ -79,7 +72,7 @@ describe('NotificationSettingsEmailAndroid', () => {
             <NotificationSettingsEmailAndroid
                 {...baseProps}
                 sendEmailNotifications={false}
-            />
+            />,
         );
         expect(wrapper.find(RadioButtonGroup).exists()).toBe(false);
         wrapper.setProps({sendEmailNotifications: true});
@@ -99,7 +92,7 @@ describe('NotificationSettingsEmailAndroid', () => {
 
     test('should match state on handleClose', () => {
         const wrapper = shallowWithIntl(
-            <NotificationSettingsEmailAndroid {...baseProps}/>
+            <NotificationSettingsEmailAndroid {...baseProps}/>,
         );
 
         wrapper.setState({showEmailNotificationsModal: true, interval: '30', newInterval: '3600'});
@@ -110,7 +103,7 @@ describe('NotificationSettingsEmailAndroid', () => {
 
     test('should saveEmailNotifyProps and handleClose on handleSaveEmailNotification', () => {
         const wrapper = shallowWithIntl(
-            <NotificationSettingsEmailAndroid {...baseProps}/>
+            <NotificationSettingsEmailAndroid {...baseProps}/>,
         );
 
         const instance = wrapper.instance();
@@ -125,7 +118,7 @@ describe('NotificationSettingsEmailAndroid', () => {
         const updateMe = jest.fn();
         const props = {...baseProps, actions: {savePreferences, updateMe}};
         const wrapper = shallowWithIntl(
-            <NotificationSettingsEmailAndroid {...props}/>
+            <NotificationSettingsEmailAndroid {...props}/>,
         );
 
         wrapper.setState({email: 'true', newInterval: 30});
@@ -140,7 +133,7 @@ describe('NotificationSettingsEmailAndroid', () => {
 
     test('should match state on showEmailModal', () => {
         const wrapper = shallowWithIntl(
-            <NotificationSettingsEmailAndroid {...baseProps}/>
+            <NotificationSettingsEmailAndroid {...baseProps}/>,
         );
 
         wrapper.setState({showEmailNotificationsModal: false});
@@ -150,11 +143,12 @@ describe('NotificationSettingsEmailAndroid', () => {
 
     test('should not save preference on back button on Android', () => {
         const wrapper = shallowWithIntl(
-            <NotificationSettingsEmailAndroid {...baseProps}/>
+            <NotificationSettingsEmailAndroid {...baseProps}/>,
         );
 
         const instance = wrapper.instance();
         instance.saveEmailNotifyProps = jest.fn();
+        instance.getPlatformOS = jest.fn(() => 'android');
 
         // Back button on Android should close the modal and trigger
         // componentDidDisappear.

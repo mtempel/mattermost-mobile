@@ -37,7 +37,7 @@ describe('EditChannelInfo', () => {
 
     test('should match snapshot', () => {
         const wrapper = shallow(
-            <EditChannelInfo {...baseProps}/>
+            <EditChannelInfo {...baseProps}/>,
         );
 
         expect(wrapper.getElement()).toMatchSnapshot();
@@ -45,7 +45,7 @@ describe('EditChannelInfo', () => {
 
     test('should have called onHeaderChangeText on text change from Autocomplete', () => {
         const wrapper = shallow(
-            <EditChannelInfo {...baseProps}/>
+            <EditChannelInfo {...baseProps}/>,
         );
 
         const instance = wrapper.instance();
@@ -63,5 +63,32 @@ describe('EditChannelInfo', () => {
         expect(baseProps.onHeaderChange).toHaveBeenCalledWith('header');
         expect(instance.enableRightButton).toHaveBeenCalledTimes(1);
         expect(instance.enableRightButton).toHaveBeenCalledWith(true);
+    });
+
+    test('should call scrollHeaderToTop', () => {
+        const wrapper = shallow(
+            <EditChannelInfo {...baseProps}/>,
+        );
+
+        const instance = wrapper.instance();
+        instance.scrollHeaderToTop = jest.fn();
+
+        expect(instance.scrollHeaderToTop).not.toHaveBeenCalled();
+
+        wrapper.setState({keyboardVisible: false});
+        instance.onHeaderFocus();
+        expect(instance.scrollHeaderToTop).not.toHaveBeenCalled();
+
+        wrapper.setState({keyboardVisible: true});
+        instance.onHeaderFocus();
+        expect(instance.scrollHeaderToTop).toHaveBeenCalledTimes(1);
+
+        wrapper.setState({headerHasFocus: false});
+        instance.onKeyboardDidShow();
+        expect(instance.scrollHeaderToTop).toHaveBeenCalledTimes(1);
+
+        wrapper.setState({headerHasFocus: true});
+        instance.onKeyboardDidShow();
+        expect(instance.scrollHeaderToTop).toHaveBeenCalledTimes(2);
     });
 });

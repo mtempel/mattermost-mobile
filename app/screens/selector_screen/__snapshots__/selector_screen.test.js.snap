@@ -4,7 +4,6 @@ exports[`SelectorScreen should match snapshot for channels 1`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -52,6 +51,7 @@ exports[`SelectorScreen should match snapshot for channels 1`] = `
     />
   </View>
   <CustomList
+    canRefresh={true}
     data={Array []}
     isLandscape={false}
     listType="flat"
@@ -74,6 +74,7 @@ exports[`SelectorScreen should match snapshot for channels 1`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",
@@ -99,7 +100,6 @@ exports[`SelectorScreen should match snapshot for channels 2`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -147,6 +147,7 @@ exports[`SelectorScreen should match snapshot for channels 2`] = `
     />
   </View>
   <CustomList
+    canRefresh={true}
     data={Array []}
     isLandscape={false}
     listType="flat"
@@ -169,6 +170,7 @@ exports[`SelectorScreen should match snapshot for channels 2`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",
@@ -194,7 +196,6 @@ exports[`SelectorScreen should match snapshot for explicit options 1`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -242,6 +243,7 @@ exports[`SelectorScreen should match snapshot for explicit options 1`] = `
     />
   </View>
   <CustomList
+    canRefresh={true}
     data={
       Array [
         Object {
@@ -271,6 +273,7 @@ exports[`SelectorScreen should match snapshot for explicit options 1`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",
@@ -296,7 +299,6 @@ exports[`SelectorScreen should match snapshot for searching 1`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -344,6 +346,7 @@ exports[`SelectorScreen should match snapshot for searching 1`] = `
     />
   </View>
   <CustomList
+    canRefresh={true}
     data={Array []}
     isLandscape={false}
     listType="flat"
@@ -366,6 +369,7 @@ exports[`SelectorScreen should match snapshot for searching 1`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",
@@ -391,7 +395,6 @@ exports[`SelectorScreen should match snapshot for users 1`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -439,6 +442,7 @@ exports[`SelectorScreen should match snapshot for users 1`] = `
     />
   </View>
   <CustomList
+    canRefresh={true}
     data={Array []}
     isLandscape={false}
     listType="section"
@@ -461,6 +465,7 @@ exports[`SelectorScreen should match snapshot for users 1`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",
@@ -486,7 +491,6 @@ exports[`SelectorScreen should match snapshot for users 2`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -534,6 +538,7 @@ exports[`SelectorScreen should match snapshot for users 2`] = `
     />
   </View>
   <CustomList
+    canRefresh={true}
     data={Array []}
     isLandscape={false}
     listType="section"
@@ -556,6 +561,7 @@ exports[`SelectorScreen should match snapshot for users 2`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",

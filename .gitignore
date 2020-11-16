@@ -39,6 +39,10 @@ ios/Pods
 .gradle
 local.properties
 *.iml
+android/app/bin
+.settings
+.project
+.classpath
 
 # node.js
 #

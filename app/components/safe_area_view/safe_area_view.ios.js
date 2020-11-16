@@ -77,6 +77,7 @@ export default class SafeAreaIos extends PureComponent {
         SafeArea.removeEventListener('safeAreaInsetsForRootViewDidChange', this.onSafeAreaInsetsForRootViewChange);
         this.keyboardDidShowListener.remove();
         this.keyboardDidHideListener.remove();
+
         this.mounted = false;
     }
 
@@ -85,7 +86,7 @@ export default class SafeAreaIos extends PureComponent {
 
         if (DeviceTypes.IS_IPHONE_WITH_INSETS || mattermostManaged.hasSafeAreaInsets) {
             const window = dimensions?.window || Dimensions.get('window');
-            const orientation = window.width > window.length ? LANDSCAPE : PORTRAIT;
+            const orientation = window.width > window.height ? LANDSCAPE : PORTRAIT;
             const {safeAreaInsets} = await SafeArea.getSafeAreaInsetsForRootView();
             this.setSafeAreaInsets(safeAreaInsets, orientation);
         }
@@ -110,7 +111,7 @@ export default class SafeAreaIos extends PureComponent {
                     if (this.mounted) {
                         this.setState({statusBarHeight: statusBarFrameData.height});
                     }
-                }
+                },
             );
         } catch (e) {
             // not needed

@@ -22,7 +22,7 @@ export default class Root extends PureComponent {
         theme: PropTypes.object.isRequired,
     };
 
-    componentWillMount() {
+    componentDidMount() {
         Client4.setAcceptLanguage(this.props.locale);
 
         if (!this.props.excludeEvents) {
@@ -44,8 +44,12 @@ export default class Root extends PureComponent {
         }
     }
 
+    setProviderRef = (ref) => {
+        this.providerRef = ref;
+    }
+
     handleNoTeams = () => {
-        if (!this.refs.provider) {
+        if (!this.providerRef) {
             setTimeout(this.handleNoTeams, 200);
             return;
         }
@@ -53,7 +57,7 @@ export default class Root extends PureComponent {
     };
 
     errorTeamsList = () => {
-        if (!this.refs.provider) {
+        if (!this.providerRef) {
             setTimeout(this.errorTeamsList, 200);
             return;
         }
@@ -62,9 +66,9 @@ export default class Root extends PureComponent {
 
     navigateToTeamsPage = (screen) => {
         const {currentUrl, theme} = this.props;
-        const {intl} = this.refs.provider.getChildContext();
+        const {intl} = this.providerRef.getChildContext();
 
-        let passProps = {theme};
+        let passProps = null;
         const options = {topBar: {}};
         if (Platform.OS === 'android') {
             options.topBar.rightButtons = [{
@@ -83,7 +87,6 @@ export default class Root extends PureComponent {
 
         if (screen === 'SelectTeam') {
             passProps = {
-                ...passProps,
                 currentUrl,
                 userWithoutTeams: true,
             };
@@ -99,7 +102,8 @@ export default class Root extends PureComponent {
 
         return (
             <IntlProvider
-                ref='provider'
+                key={locale}
+                ref={this.setProviderRef}
                 locale={locale}
                 messages={getTranslations(locale)}
             >

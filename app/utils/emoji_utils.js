@@ -3,7 +3,7 @@
 
 import emojiRegex from 'emoji-regex';
 
-import {EmojiIndicesByAlias} from './emojis';
+import {Emojis, EmojiIndicesByAlias} from './emojis';
 
 const RE_NAMED_EMOJI = /(:([a-zA-Z0-9_-]+):)/g;
 
@@ -104,4 +104,73 @@ export function doesMatchNamedEmoji(emojiName) {
     }
 
     return false;
+}
+
+export function getEmojiByName(emojiName) {
+    if (EmojiIndicesByAlias.has(emojiName)) {
+        return Emojis[EmojiIndicesByAlias.get(emojiName)];
+    }
+
+    return null;
+}
+
+// Since there is no shared logic between the web and mobile app
+// this is copied from the webapp as custom sorting logic for emojis
+
+const defaultComparisonRule = (aName, bName) => {
+    return aName.localeCompare(bName);
+};
+
+const thumbsDownComparisonRule = (other) =>
+    (other === 'thumbsup' || other === '+1' ? 1 : 0);
+const thumbsUpComparisonRule = (other) => (other === 'thumbsdown' || other === '-1' ? -1 : 0);
+
+const customComparisonRules = {
+    thumbsdown: thumbsDownComparisonRule,
+    '-1': thumbsDownComparisonRule,
+    thumbsup: thumbsUpComparisonRule,
+    '+1': thumbsUpComparisonRule,
+};
+
+function doDefaultComparison(aName, bName) {
+    if (customComparisonRules[aName]) {
+        return customComparisonRules[aName](bName) || defaultComparisonRule(aName, bName);
+    }
+
+    return defaultComparisonRule(aName, bName);
+}
+
+export function compareEmojis(emojiA, emojiB, searchedName) {
+    const aName = emojiA.name || (emojiA.aliases ? emojiA.aliases[0] : emojiA);
+    const bName = emojiB.name || (emojiB.aliases ? emojiB.aliases[0] : emojiB);
+
+    if (!searchedName) {
+        return doDefaultComparison(aName, bName);
+    }
+
+    // Have the emojis that start with the search appear first
+    const aPrefix = aName.startsWith(searchedName);
+    const bPrefix = bName.startsWith(searchedName);
+
+    if (aPrefix && bPrefix) {
+        return doDefaultComparison(aName, bName);
+    } else if (aPrefix) {
+        return -1;
+    } else if (bPrefix) {
+        return 1;
+    }
+
+    // Have the emojis that contain the search appear next
+    const aIncludes = aName.includes(searchedName);
+    const bIncludes = bName.includes(searchedName);
+
+    if (aIncludes && bIncludes) {
+        return doDefaultComparison(aName, bName);
+    } else if (aIncludes) {
+        return -1;
+    } else if (bIncludes) {
+        return 1;
+    }
+
+    return doDefaultComparison(aName, bName);
 }

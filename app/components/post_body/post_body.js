@@ -1,6 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+/* eslint-disable camelcase */
+
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -13,6 +15,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {Posts} from 'mattermost-redux/constants';
 
 import CombinedSystemMessage from 'app/components/combined_system_message';
+import {renderSystemMessage} from './system_message_helpers';
 import FormattedText from 'app/components/formatted_text';
 import Markdown from 'app/components/markdown';
 import MarkdownEmoji from 'app/components/markdown/markdown_emoji';
@@ -61,7 +64,7 @@ export default class PostBody extends PureComponent {
         onPermalinkPress: PropTypes.func,
         onPress: PropTypes.func,
         post: PropTypes.object.isRequired,
-        postProps: PropTypes.object,
+        postProps: PropTypes.object.isRequired,
         postType: PropTypes.string,
         replyBarStyle: PropTypes.array,
         showAddReaction: PropTypes.bool,
@@ -78,6 +81,7 @@ export default class PostBody extends PureComponent {
         onPress: emptyFunction,
         replyBarStyle: [],
         message: '',
+        postProps: {},
     };
 
     static contextTypes = {
@@ -142,7 +146,7 @@ export default class PostBody extends PureComponent {
         };
         const options = {
             layout: {
-                backgroundColor: changeOpacity('#000', 0.2),
+                componentBackgroundColor: changeOpacity('#000', 0.2),
             },
         };
 
@@ -192,21 +196,23 @@ export default class PostBody extends PureComponent {
         });
     };
 
-    renderAddChannelMember = (style, messageStyle, textStyles) => {
+    renderAddChannelMember = (messageStyle, textStyles) => {
         const {onPress, postProps} = this.props;
 
         if (!PostAddChannelMember) {
             PostAddChannelMember = require('app/components/post_add_channel_member').default;
         }
 
-        let userIds = postProps.add_channel_member.not_in_channel_user_ids;
-        let usernames = postProps.add_channel_member.not_in_channel_usernames;
+        const postId = postProps.add_channel_member.post_id;
+        const noGroupsUsernames = postProps.add_channel_member?.not_in_groups_usernames;
+        let userIds = postProps.add_channel_member?.not_in_channel_user_ids;
+        let usernames = postProps.add_channel_member?.not_in_channel_usernames;
 
         if (!userIds) {
-            userIds = postProps.add_channel_member.user_ids;
+            userIds = postProps.add_channel_member?.user_ids;
         }
         if (!usernames) {
-            usernames = postProps.add_channel_member.usernames;
+            usernames = postProps.add_channel_member?.usernames;
         }
 
         return (
@@ -214,10 +220,10 @@ export default class PostBody extends PureComponent {
                 baseTextStyle={messageStyle}
                 onPostPress={onPress}
                 textStyles={textStyles}
-                postId={postProps.add_channel_member.post_id}
+                postId={postId}
                 userIds={userIds}
                 usernames={usernames}
-                noGroupsUsernames={postProps.add_channel_member.not_in_groups_usernames}
+                noGroupsUsernames={noGroupsUsernames}
             />
         );
     };
@@ -246,6 +252,7 @@ export default class PostBody extends PureComponent {
                     isFailed={isFailed}
                     onLongPress={this.showPostOptions}
                     postId={post.id}
+                    isReplyPost={this.props.isReplyPost}
                 />
             );
         }
@@ -348,6 +355,13 @@ export default class PostBody extends PureComponent {
         const messageStyle = isSystemMessage ? [style.message, style.systemMessage] : style.message;
         const isPendingOrFailedPost = isPending || isFailed;
 
+        const messageStyles = {messageStyle, textStyles};
+        const intl = this.context.intl;
+        const systemMessage = renderSystemMessage(this.props, messageStyles, intl);
+        if (systemMessage) {
+            return systemMessage;
+        }
+
         let body;
         let messageComponent;
         if (hasBeenDeleted) {
@@ -359,7 +373,7 @@ export default class PostBody extends PureComponent {
                 />
             );
         } else if (isPostAddChannelMember) {
-            messageComponent = this.renderAddChannelMember(style, messageStyle, textStyles);
+            messageComponent = this.renderAddChannelMember(messageStyle, textStyles);
         } else if (postType === Posts.POST_TYPES.COMBINED_USER_ACTIVITY) {
             const {allUserIds, allUsernames, messageData} = postProps.user_activity;
             messageComponent = (
@@ -401,6 +415,7 @@ export default class PostBody extends PureComponent {
                         onPostPress={onPress}
                         textStyles={textStyles}
                         value={message}
+                        disableAtChannelMentionHighlight={postProps.mentionHighlightDisabled}
                     />
                 </View>
             );
@@ -422,6 +437,7 @@ export default class PostBody extends PureComponent {
                     <ShowMoreButton
                         highlight={highlight}
                         onPress={this.openLongPost}
+                        theme={theme}
                     />
                     }
                     {this.renderPostAdditionalContent(blockStyles, messageStyle, textStyles)}

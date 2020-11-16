@@ -12,7 +12,7 @@ import {getCustomEmojis, searchCustomEmojis} from 'mattermost-redux/actions/emoj
 
 import {incrementEmojiPickerPage} from 'app/actions/views/emoji';
 import {getDimensions, isLandscape} from 'app/selectors/device';
-import {CategoryNames, Emojis, EmojiIndicesByAlias, EmojiIndicesByCategory} from 'app/utils/emojis';
+import {BuiltInEmojis, CategoryNames, Emojis, EmojiIndicesByAlias, EmojiIndicesByCategory} from 'app/utils/emojis';
 import {t} from 'app/utils/i18n';
 
 import EmojiPicker from './emoji_picker';
@@ -96,6 +96,11 @@ const getEmojisBySection = createSelector(
         });
 
         const customEmojiItems = [];
+        BuiltInEmojis.forEach((emoji) => {
+            customEmojiItems.push({
+                name: emoji,
+            });
+        });
 
         for (const [key] of customEmojis) {
             customEmojiItems.push({
@@ -120,7 +125,7 @@ const getEmojisBySection = createSelector(
         }
 
         return emoticons;
-    }
+    },
 );
 
 const getEmojisByName = createSelector(
@@ -132,7 +137,7 @@ const getEmojisByName = createSelector(
         }
 
         return Array.from(emoticons);
-    }
+    },
 );
 
 function mapStateToProps(state) {
@@ -160,7 +165,6 @@ function mapStateToProps(state) {
         theme: getTheme(state),
         customEmojisEnabled: getConfig(state).EnableCustomEmoji === 'true',
         customEmojiPage: state.views.emoji.emojiPickerCustomPage,
-        serverVersion: state.entities.general.serverVersion,
     };
 }
 

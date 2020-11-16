@@ -32,7 +32,7 @@ exports[`thread should match snapshot, has root post 1`] = `
         }
         renderFooter={
           <Loading
-            color="grey"
+            color="#3d3c40"
             size="large"
             style={Object {}}
           />
@@ -42,10 +42,7 @@ exports[`thread should match snapshot, has root post 1`] = `
       <View
         nativeID="threadAccessoriesContainer"
       >
-        <Connect(FileUploadPreview)
-          rootId="root_id"
-        />
-        <ForwardRef(forwardConnectRef)
+        <Connect(Autocomplete)
           cursorPositionEvent="onThreadTextBoxCursorChange"
           maxHeight={200}
           onChangeText={[Function]}
@@ -59,7 +56,7 @@ exports[`thread should match snapshot, has root post 1`] = `
     accessoriesContainerID="threadAccessoriesContainer"
     scrollViewNativeID="threadPostList"
   >
-    <ForwardRef(forwardConnectRef)
+    <Connect(PostTextBoxIOS)
       channelId="channel_id"
       channelIsArchived={false}
       cursorPositionEvent="onThreadTextBoxCursorChange"
@@ -87,7 +84,7 @@ exports[`thread should match snapshot, no root post, loading 1`] = `
     />
     <Connect(StatusBar) />
     <Loading
-      color="grey"
+      color="#3d3c40"
       size="large"
       style={Object {}}
     />
@@ -112,7 +109,7 @@ exports[`thread should match snapshot, render footer 1`] = `
   }
   renderFooter={
     <Loading
-      color="grey"
+      color="#3d3c40"
       size="large"
       style={Object {}}
     />
@@ -157,7 +154,7 @@ exports[`thread should match snapshot, render footer 3`] = `
     />
     <Connect(StatusBar) />
     <Loading
-      color="grey"
+      color="#3d3c40"
       size="large"
       style={Object {}}
     />

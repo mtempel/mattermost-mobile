@@ -1,6 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+import * as ReactNative from 'react-native';
 import MockAsyncStorage from 'mock-async-storage';
 import {configure} from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
@@ -13,8 +14,31 @@ global.fetch = jest.fn(() => Promise.resolve());
 
 /* eslint-disable no-console */
 
-jest.mock('NativeModules', () => {
-    return {
+jest.doMock('react-native', () => {
+    const {
+        Platform,
+        StyleSheet,
+        ViewPropTypes,
+        PermissionsAndroid,
+        ImagePickerManager,
+        requireNativeComponent,
+        Alert: RNAlert,
+        InteractionManager: RNInteractionManager,
+        NativeModules: RNNativeModules,
+    } = ReactNative;
+
+    const Alert = {
+        ...RNAlert,
+        alert: jest.fn(),
+    };
+
+    const InteractionManager = {
+        ...RNInteractionManager,
+        runAfterInteractions: jest.fn((cb) => cb()),
+    };
+
+    const NativeModules = {
+        ...RNNativeModules,
         UIManager: {
             RCTView: {
                 directEventTypes: {},
@@ -23,6 +47,10 @@ jest.mock('NativeModules', () => {
         BlurAppScreen: () => true,
         MattermostManaged: {
             getConfig: jest.fn(),
+        },
+        MattermostShare: {
+            close: jest.fn(),
+            cacheDirName: 'mmShare',
         },
         PlatformConstants: {
             forceTouchAvailable: false,
@@ -35,14 +63,17 @@ jest.mock('NativeModules', () => {
                 END: 'END',
             },
         },
+        KeyboardObserver: {},
+        RNCNetInfo: {
+            getCurrentState: jest.fn().mockResolvedValue({isConnected: true}),
+            addListener: jest.fn(),
+            removeListeners: jest.fn(),
+            addEventListener: jest.fn(),
+        },
         RNKeychainManager: {
             SECURITY_LEVEL_ANY: 'ANY',
             SECURITY_LEVEL_SECURE_SOFTWARE: 'SOFTWARE',
             SECURITY_LEVEL_SECURE_HARDWARE: 'HARDWARE',
-        },
-        RNCNetInfo: {
-            addEventListener: jest.fn(),
-            getCurrentState: jest.fn().mockResolvedValue({isConnected: true}),
         },
         RNReactNativeHapticFeedback: {
             trigger: jest.fn(),
@@ -50,9 +81,27 @@ jest.mock('NativeModules', () => {
         StatusBarManager: {
             getHeight: jest.fn(),
         },
+        RNDocumentPicker: {
+            pick: jest.fn(),
+        },
+        RNPermissions: {},
     };
+
+    return Object.setPrototypeOf({
+        Platform,
+        StyleSheet,
+        ViewPropTypes,
+        PermissionsAndroid,
+        ImagePickerManager,
+        requireNativeComponent,
+        Alert,
+        InteractionManager,
+        NativeModules,
+    }, ReactNative);
 });
-jest.mock('NativeEventEmitter');
+
+jest.mock('react-native/Libraries/Animated/src/NativeAnimatedHelper');
+jest.mock('../node_modules/react-native/Libraries/EventEmitter/NativeEventEmitter');
 
 jest.mock('react-native-device-info', () => {
     return {
@@ -71,6 +120,7 @@ jest.mock('react-native-cookies', () => ({
     openURL: jest.fn(),
     canOpenURL: jest.fn(),
     getInitialURL: jest.fn(),
+    clearAll: jest.fn(),
 }));
 
 jest.mock('react-native-navigation', () => {
@@ -106,7 +156,6 @@ jest.mock('app/actions/navigation', () => ({
     showModal: jest.fn(),
     showModalOverCurrentContext: jest.fn(),
     showSearchModal: jest.fn(),
-    peek: jest.fn(),
     setButtons: jest.fn(),
     showOverlay: jest.fn(),
     mergeNavigationOptions: jest.fn(),
@@ -145,17 +194,11 @@ beforeEach(() => {
     errors = [];
 });
 
-afterEach(() => {
-    if (logs.length > 0 || warns.length > 0 || errors.length > 0) {
-        throw new Error('Unexpected console logs' + logs + warns + errors);
-    }
-});
-
 jest.mock('rn-fetch-blob', () => ({
     fs: {
         dirs: {
             DocumentDir: () => jest.fn(),
-            CacheDir: () => jest.fn(),
+            CacheDir: '/data/com.mattermost.beta/cache',
         },
         exists: jest.fn(),
         existsWithDiffExt: jest.fn(),
@@ -169,7 +212,7 @@ jest.mock('rn-fetch-blob', () => ({
 jest.mock('rn-fetch-blob/fs', () => ({
     dirs: {
         DocumentDir: () => jest.fn(),
-        CacheDir: () => jest.fn(),
+        CacheDir: '/data/com.mattermost.beta/cache',
     },
     exists: jest.fn(),
     existsWithDiffExt: jest.fn(),

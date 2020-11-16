@@ -7,7 +7,7 @@ import {intlShape} from 'react-intl';
 import {Alert, View} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {DocumentPickerUtil} from 'react-native-document-picker';
+import DocumentPicker from 'react-native-document-picker';
 import {Navigation} from 'react-native-navigation';
 
 import {Client4} from 'mattermost-redux/client';
@@ -310,9 +310,7 @@ export default class EditProfile extends PureComponent {
         const {formatMessage} = this.context.intl;
         const fileTypeWarning = formatMessage({
             id: 'mobile.file_upload.unsupportedMimeType',
-            defaultMessage: 'Only files of the following MIME type can be uploaded: {mimeTypes}',
-        }, {
-            mimeTypes: VALID_MIME_TYPES.join('\n'),
+            defaultMessage: 'Only BMP, JPG or PNG images may be used for profile pictures.',
         });
 
         Alert.alert('', fileTypeWarning);
@@ -470,6 +468,7 @@ export default class EditProfile extends PureComponent {
                 theme={theme}
                 value={nickname}
                 isLandscape={isLandscape}
+                optional={true}
             />
         );
     };
@@ -493,6 +492,7 @@ export default class EditProfile extends PureComponent {
                 theme={theme}
                 value={position}
                 isLandscape={isLandscape}
+                optional={true}
             />
         );
     };
@@ -521,7 +521,7 @@ export default class EditProfile extends PureComponent {
                     currentUser={currentUser}
                     theme={theme}
                     blurTextBox={emptyFunction}
-                    browseFileTypes={DocumentPickerUtil.images()}
+                    browseFileTypes={DocumentPicker.types.images}
                     canTakeVideo={false}
                     canBrowseVideoLibrary={false}
                     maxFileSize={MAX_SIZE}
@@ -560,7 +560,7 @@ export default class EditProfile extends PureComponent {
             return (
                 <View style={[style.container, style.flex]}>
                     <StatusBar/>
-                    <Loading/>
+                    <Loading color={theme.centerChannelColor}/>
                 </View>
             );
         }
@@ -585,7 +585,6 @@ export default class EditProfile extends PureComponent {
                 <KeyboardAwareScrollView
                     bounces={false}
                     innerRef={this.scrollViewRef}
-                    style={style.container}
                 >
                     {displayError}
                     <View style={[style.scrollView]}>
@@ -613,9 +612,6 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
     return {
         flex: {
             flex: 1,
-        },
-        container: {
-            backgroundColor: theme.centerChannelBg,
         },
         scrollView: {
             flex: 1,

@@ -3,7 +3,7 @@
 exports[`TermsOfService should enable/disable navigator buttons on setNavigatorButtons true/false 1`] = `
 <React.Fragment>
   <Connect(StatusBar) />
-  <ScrollViewMock
+  <ScrollView
     contentContainerStyle={
       Object {
         "paddingBottom": 50,
@@ -131,14 +131,14 @@ exports[`TermsOfService should enable/disable navigator buttons on setNavigatorB
       }
       value="Terms Text"
     />
-  </ScrollViewMock>
+  </ScrollView>
 </React.Fragment>
 `;
 
 exports[`TermsOfService should enable/disable navigator buttons on setNavigatorButtons true/false 2`] = `
 <React.Fragment>
   <Connect(StatusBar) />
-  <ScrollViewMock
+  <ScrollView
     contentContainerStyle={
       Object {
         "paddingBottom": 50,
@@ -266,13 +266,13 @@ exports[`TermsOfService should enable/disable navigator buttons on setNavigatorB
       }
       value="Terms Text"
     />
-  </ScrollViewMock>
+  </ScrollView>
 </React.Fragment>
 `;
 
 exports[`TermsOfService should match snapshot 1`] = `
 <Loading
-  color="grey"
+  color="#3d3c40"
   size="large"
   style={Object {}}
 />
@@ -282,7 +282,6 @@ exports[`TermsOfService should match snapshot for fail of get terms 1`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -291,7 +290,7 @@ exports[`TermsOfService should match snapshot for fail of get terms 1`] = `
   <FailedNetworkAction
     actionDefaultMessage="try again"
     actionId="mobile.failed_network_action.retry"
-    errorDefaultMessage="Messages will load when you have an internet connection or {refresh}."
+    errorDefaultMessage="Messages will load when you have an internet connection or {tryAgainAction}."
     errorId="mobile.failed_network_action.shortDescription"
     onRetry={[Function]}
     theme={
@@ -305,6 +304,7 @@ exports[`TermsOfService should match snapshot for fail of get terms 1`] = `
         "dndIndicator": "#f74343",
         "errorTextColor": "#fd5960",
         "linkColor": "#2389d7",
+        "mentionBg": "#ffffff",
         "mentionBj": "#ffffff",
         "mentionColor": "#145dbf",
         "mentionHighlightBg": "#ffe577",
@@ -328,7 +328,7 @@ exports[`TermsOfService should match snapshot for fail of get terms 1`] = `
 
 exports[`TermsOfService should match snapshot for get terms 1`] = `
 <Loading
-  color="grey"
+  color="#3d3c40"
   size="large"
   style={Object {}}
 />
@@ -337,7 +337,7 @@ exports[`TermsOfService should match snapshot for get terms 1`] = `
 exports[`TermsOfService should match snapshot on enableNavigatorLogout 1`] = `
 <React.Fragment>
   <Connect(StatusBar) />
-  <ScrollViewMock
+  <ScrollView
     contentContainerStyle={
       Object {
         "paddingBottom": 50,
@@ -465,6 +465,6 @@ exports[`TermsOfService should match snapshot on enableNavigatorLogout 1`] = `
       }
       value="Terms Text"
     />
-  </ScrollViewMock>
+  </ScrollView>
 </React.Fragment>
 `;

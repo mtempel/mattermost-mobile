@@ -15,7 +15,6 @@ import AwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {Navigation} from 'react-native-navigation';
 
 import {debounce} from 'mattermost-redux/actions/helpers';
-import {RequestStatus} from 'mattermost-redux/constants';
 import {isDateLine, getDateForDateLine} from 'mattermost-redux/utils/post_list';
 
 import Autocomplete from 'app/components/autocomplete';
@@ -49,6 +48,7 @@ const RECENT_SEPARATOR_HEIGHT = 3;
 const SCROLL_UP_MULTIPLIER = 6;
 const SEARCHING = 'searching';
 const NO_RESULTS = 'no results';
+const FAILURE = 'failure';
 
 export default class Search extends PureComponent {
     static propTypes = {
@@ -70,7 +70,6 @@ export default class Search extends PureComponent {
         postIds: PropTypes.array,
         archivedPostIds: PropTypes.arrayOf(PropTypes.string),
         recent: PropTypes.array.isRequired,
-        searchingStatus: PropTypes.string,
         isSearchGettingMore: PropTypes.bool.isRequired,
         theme: PropTypes.object.isRequired,
         enableDateSuggestion: PropTypes.bool,
@@ -98,6 +97,10 @@ export default class Search extends PureComponent {
             cursorPosition: 0,
             value: props.initialValue,
             recent: props.recent,
+            didFail: false,
+            isLoading: false,
+            isLoaded: false,
+            status: 'not_started',
         };
     }
 
@@ -109,22 +112,22 @@ export default class Search extends PureComponent {
         }
 
         setTimeout(() => {
-            if (this.refs.searchBar && !this.props.initialValue) {
-                this.refs.searchBar.focus();
+            if (this.searchBarRef && !this.props.initialValue) {
+                this.searchBarRef.focus();
             }
         }, 150);
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const {searchingStatus: status, enableDateSuggestion} = this.props;
-        const {recent} = this.state;
-        const {searchingStatus: prevStatus} = prevProps;
+        const {enableDateSuggestion} = this.props;
+        const {recent, didFail, isLoaded, status} = this.state;
+        const {status: prevStatus} = prevState;
         const shouldScroll = prevStatus !== status &&
-            (status === RequestStatus.SUCCESS || status === RequestStatus.FAILURE) &&
+            (isLoaded || didFail) &&
             !this.props.isSearchGettingMore && !prevProps.isSearchGettingMore && prevState.recent.length === recent.length;
 
         if (this.props.isLandscape !== prevProps.isLandscape) {
-            this.refs.searchBar.blur();
+            this.searchBarRef.blur();
         }
 
         if (shouldScroll) {
@@ -137,8 +140,8 @@ export default class Search extends PureComponent {
                 const offset = modifiersHeight + modifiersSeparatorHeight + SECTION_HEIGHT + recentLabelsHeight + recentSeparatorsHeight;
 
                 Keyboard.dismiss();
-                if (this.refs.list) {
-                    this.refs.list._wrapperListRef.getListRef().scrollToOffset({ //eslint-disable-line no-underscore-dangle
+                if (this.listRef?._wrapperListRef) {
+                    this.listRef._wrapperListRef.getListRef().scrollToOffset({ //eslint-disable-line no-underscore-dangle
                         animated: true,
                         offset,
                     });
@@ -149,12 +152,20 @@ export default class Search extends PureComponent {
 
     navigationButtonPressed({buttonId}) {
         if (buttonId === 'backPress') {
-            if (this.state.preview) {
-                this.refs.preview.handleClose();
+            if (this.state.preview && this.previewRef) {
+                this.previewRef.handleClose();
             } else {
                 dismissModal();
             }
         }
+    }
+
+    setSearchBarRef = (ref) => {
+        this.searchBarRef = ref;
+    }
+
+    setListRef = (ref) => {
+        this.listRef = ref;
     }
 
     archivedIndicator = (postID, style) => {
@@ -265,11 +276,13 @@ export default class Search extends PureComponent {
     });
 
     handleTextChanged = (value, selectionChanged) => {
-        const {actions, searchingStatus, isSearchGettingMore} = this.props;
+        const {actions, isSearchGettingMore} = this.props;
+        const {isLoaded} = this.state;
+
         this.setState({value});
         actions.handleSearchDraftChanged(value);
 
-        if (!value && searchingStatus === RequestStatus.SUCCESS && !isSearchGettingMore) {
+        if (!value && isLoaded && !isSearchGettingMore) {
             actions.clearSearch();
             this.scrollToTop();
         }
@@ -325,11 +338,13 @@ export default class Search extends PureComponent {
     });
 
     renderFooter = () => {
-        if (this.props.isSearchGettingMore) {
-            const style = getStyleFromTheme(this.props.theme);
+        const {isSearchGettingMore, theme} = this.props;
+
+        if (isSearchGettingMore) {
+            const style = getStyleFromTheme(theme);
             return (
                 <View style={style.loadingMore}>
-                    <Loading/>
+                    <Loading color={theme.centerChannelColor}/>
                 </View>
             );
         }
@@ -467,15 +482,15 @@ export default class Search extends PureComponent {
     };
 
     scrollToTop = () => {
-        if (this.refs.list) {
-            this.refs.list._wrapperListRef.getListRef().scrollToOffset({ //eslint-disable-line no-underscore-dangle
+        if (this.listRef?._wrapperListRef) {
+            this.listRef._wrapperListRef.getListRef().scrollToOffset({ //eslint-disable-line no-underscore-dangle
                 animated: false,
                 offset: 0,
             });
         }
     };
 
-    search = (text, isOrSearch) => {
+    search = async (text, isOrSearch) => {
         const {actions, currentTeamId, viewArchivedChannels} = this.props;
         const recent = [...this.state.recent];
         const terms = text.trim();
@@ -500,13 +515,21 @@ export default class Search extends PureComponent {
             per_page: 20,
             include_deleted_channels: viewArchivedChannels,
         };
-        actions.searchPostsWithParams(currentTeamId, params, true);
+        this.setState({isLoading: true, isLoaded: false, status: 'isLoading'});
+        const {error} = await actions.searchPostsWithParams(currentTeamId, params, true);
+
         if (!recent.find((r) => r.terms === terms)) {
             recent.push({
                 terms,
             });
             this.setState({recent});
         }
+        this.setState({
+            isLoading: false,
+            didFail: Boolean(error),
+            isLoaded: true,
+            status: error ? 'didFail' : 'isLoaded',
+        });
     };
 
     setModifierValue = preventDoubleTap((modifier) => {
@@ -523,8 +546,8 @@ export default class Search extends PureComponent {
 
         this.handleTextChanged(newValue, true);
 
-        if (this.refs.searchBar) {
-            this.refs.searchBar.focus();
+        if (this.searchBarRef) {
+            this.searchBarRef.focus();
         }
     });
 
@@ -539,7 +562,6 @@ export default class Search extends PureComponent {
         const {
             isLandscape,
             postIds,
-            searchingStatus,
             theme,
             isSearchGettingMore,
         } = this.props;
@@ -549,6 +571,9 @@ export default class Search extends PureComponent {
             cursorPosition,
             recent,
             value,
+            didFail,
+            isLoading,
+            isLoaded,
         } = this.state;
         const style = getStyleFromTheme(theme);
 
@@ -617,8 +642,23 @@ export default class Search extends PureComponent {
         }
 
         let results;
-        switch (searchingStatus) {
-        case RequestStatus.STARTED:
+        if (didFail) {
+            if (postIds.length) {
+                results = postIds;
+            } else {
+                results = [{
+                    id: FAILURE,
+                    component: (
+                        <View style={style.searching}>
+                            <PostListRetry
+                                retry={this.retry}
+                                theme={theme}
+                            />
+                        </View>
+                    ),
+                }];
+            }
+        } else if (isLoading) {
             if (isSearchGettingMore) {
                 results = postIds;
             } else {
@@ -626,13 +666,12 @@ export default class Search extends PureComponent {
                     id: SEARCHING,
                     component: (
                         <View style={style.searching}>
-                            <Loading/>
+                            <Loading color={theme.centerChannelColor}/>
                         </View>
                     ),
                 }];
             }
-            break;
-        case RequestStatus.SUCCESS:
+        } else if (isLoaded) {
             if (postIds.length) {
                 results = postIds;
             } else if (this.state.value) {
@@ -647,24 +686,6 @@ export default class Search extends PureComponent {
                     ),
                 }];
             }
-            break;
-        case RequestStatus.FAILURE:
-            if (postIds.length) {
-                results = postIds;
-            } else {
-                results = [{
-                    id: RequestStatus.FAILURE,
-                    component: (
-                        <View style={style.searching}>
-                            <PostListRetry
-                                retry={this.retry}
-                                theme={theme}
-                            />
-                        </View>
-                    ),
-                }];
-            }
-            break;
         }
 
         if (results) {
@@ -692,7 +713,7 @@ export default class Search extends PureComponent {
                     <StatusBar/>
                     <View style={[style.header, padding(isLandscape)]}>
                         <SearchBar
-                            ref='searchBar'
+                            ref={this.setSearchBarRef}
                             placeholder={intl.formatMessage({id: 'search_bar.search', defaultMessage: 'Search'})}
                             cancelTitle={intl.formatMessage({id: 'mobile.post.cancel', defaultMessage: 'Cancel'})}
                             backgroundColor='transparent'
@@ -715,7 +736,7 @@ export default class Search extends PureComponent {
                         />
                     </View>
                     <SectionList
-                        ref='list'
+                        ref={this.setListRef}
                         style={style.sectionList}
                         renderSectionHeader={this.renderSectionHeader}
                         sections={sections}

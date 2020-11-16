@@ -59,13 +59,21 @@ export default class VideoPreview extends PureComponent {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         EventEmitter.on('stop-video-playback', this.stopPlayback);
         this.initializeComponent();
     }
 
     componentWillUnmount() {
         EventEmitter.off('stop-video-playback', this.stopPlayback);
+    }
+
+    setVideoPlayerRef = (ref) => {
+        this.videoPlayerRef = ref;
+    }
+
+    setControlsRef = (ref) => {
+        this.controlsRef = ref;
     }
 
     async initializeComponent() {
@@ -121,7 +129,7 @@ export default class VideoPreview extends PureComponent {
                     id: 'mobile.server_upgrade.button',
                     defaultMessage: 'OK',
                 }),
-            }]
+            }],
         );
     };
 
@@ -156,16 +164,16 @@ export default class VideoPreview extends PureComponent {
     };
 
     onReplay = () => {
-        if (this.refs.videoPlayer) {
+        if (this.videoPlayerRef) {
             this.setState({playerState: PLAYER_STATE.PLAYING, paused: false});
-            this.refs.videoPlayer.seek(0);
+            this.videoPlayerRef.seek(0);
         }
     };
 
     onSeek = (seek) => {
-        if (this.refs.videoPlayer) {
+        if (this.videoPlayerRef) {
             this.setState({currentTime: seek}, () => {
-                this.refs.videoPlayer.seek(seek);
+                this.videoPlayerRef.seek(seek);
             });
         }
     };
@@ -207,10 +215,10 @@ export default class VideoPreview extends PureComponent {
                 <TouchableOpacity
                     style={StyleSheet.absoluteFill}
                     activeOpacity={1}
-                    onPress={() => this.refs.controls.fadeInControls()}
+                    onPress={() => this.controlsRef?.fadeInControls()}
                 >
                     <Video
-                        ref='videoPlayer'
+                        ref={this.setVideoPlayerRef}
                         style={[StyleSheet.absoluteFill, {position: 'absolute'}]}
                         resizeMode='contain'
                         source={{uri: path}}
@@ -224,7 +232,7 @@ export default class VideoPreview extends PureComponent {
                     />
                 </TouchableOpacity>
                 <VideoControls
-                    ref='controls'
+                    ref={this.setControlsRef}
                     mainColor={theme.linkColor}
                     playerState={playerState}
                     isFullScreen={isFullScreen}

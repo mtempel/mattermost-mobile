@@ -4,6 +4,7 @@
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import {
+    Platform,
     Text,
 } from 'react-native';
 
@@ -47,6 +48,8 @@ export default class Reaction extends PureComponent {
                 <Emoji
                     emojiName={emojiName}
                     size={20}
+                    textStyle={{color: 'black', fontWeight: 'bold'}}
+                    customEmojiStyle={{marginHorizontal: 3}}
                     padding={5}
                 />
                 <Text style={styles.count}>{count}</Text>
@@ -74,8 +77,12 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
             marginRight: 6,
             marginBottom: 5,
             marginTop: 10,
-            paddingVertical: 2,
             paddingHorizontal: 6,
+            ...Platform.select({
+                android: {
+                    paddingBottom: 2,
+                },
+            }),
         },
     };
 });

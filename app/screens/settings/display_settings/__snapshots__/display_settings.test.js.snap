@@ -4,7 +4,6 @@ exports[`DisplaySettings should match snapshot 1`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -13,7 +12,6 @@ exports[`DisplaySettings should match snapshot 1`] = `
   <View
     style={
       Object {
-        "backgroundColor": "rgba(61,60,64,0.06)",
         "flex": 1,
         "paddingTop": 35,
       }
@@ -48,6 +46,7 @@ exports[`DisplaySettings should match snapshot 1`] = `
           "dndIndicator": "#f74343",
           "errorTextColor": "#fd5960",
           "linkColor": "#2389d7",
+          "mentionBg": "#ffffff",
           "mentionBj": "#ffffff",
           "mentionColor": "#145dbf",
           "mentionHighlightBg": "#ffe577",
@@ -82,7 +81,6 @@ exports[`DisplaySettings should match snapshot on Tablet devices 1`] = `
 <View
   style={
     Object {
-      "backgroundColor": "#ffffff",
       "flex": 1,
     }
   }
@@ -91,7 +89,6 @@ exports[`DisplaySettings should match snapshot on Tablet devices 1`] = `
   <View
     style={
       Object {
-        "backgroundColor": "rgba(61,60,64,0.06)",
         "flex": 1,
         "paddingTop": 35,
       }
@@ -126,6 +123,7 @@ exports[`DisplaySettings should match snapshot on Tablet devices 1`] = `
           "dndIndicator": "#f74343",
           "errorTextColor": "#fd5960",
           "linkColor": "#2389d7",
+          "mentionBg": "#ffffff",
           "mentionBj": "#ffffff",
           "mentionColor": "#145dbf",
           "mentionHighlightBg": "#ffe577",
@@ -165,6 +163,7 @@ exports[`DisplaySettings should match snapshot on Tablet devices 1`] = `
           "dndIndicator": "#f74343",
           "errorTextColor": "#fd5960",
           "linkColor": "#2389d7",
+          "mentionBg": "#ffffff",
           "mentionBj": "#ffffff",
           "mentionColor": "#145dbf",
           "mentionHighlightBg": "#ffe577",
